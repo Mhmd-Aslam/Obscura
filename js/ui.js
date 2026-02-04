@@ -226,17 +226,19 @@ export class UIManager {
     }
 
     // --- Dynamic UI Injection for History ---
+    // --- Dynamic UI Injection for History ---
     injectHistoryUI() {
-        // We'll append a history section to the Encrypt Panel
         const encPanel = document.getElementById('panel-encrypt');
         if (!encPanel) return;
 
         const historyContainer = document.createElement('div');
         historyContainer.className = 'history-section';
         historyContainer.innerHTML = `
-            <div class="divider">Recent History (Local)</div>
+            <div class="history-header">
+                <h3>Recent History</h3>
+                <button id="btn-clear-history" type="button" class="btn-text-danger">Clear</button>
+            </div>
             <div id="history-list" class="history-list"></div>
-            <button id="btn-clear-history" type="button" class="btn-secondary" style="margin-top: 10px; font-size: 0.8rem;">Clear History</button>
         `;
         encPanel.appendChild(historyContainer);
 
@@ -249,26 +251,34 @@ export class UIManager {
 
         this.dom.historyList.innerHTML = '';
         if (items.length === 0) {
-            this.dom.historyList.innerHTML = '<p class="disclaimer">No recent encryptions.</p>';
+            this.dom.historyList.innerHTML = '<div class="disclaimer">No recent encryptions. History is local only.</div>';
+            // Hide clear button if empty? Optional, but cleaner.
+            if (this.dom.btnClearHistory) this.dom.btnClearHistory.style.display = 'none';
             return;
         }
 
-        items.forEach((item, index) => {
+        if (this.dom.btnClearHistory) this.dom.btnClearHistory.style.display = 'block';
+
+        items.forEach((item) => {
             const row = document.createElement('div');
             row.className = 'history-item';
-            row.style.cssText = 'background: var(--bg-input); padding: 8px; margin-bottom: 4px; border-radius: 4px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); color: var(--text-primary);';
 
-            const time = new Date(item.timestamp).toLocaleTimeString();
+            const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             row.innerHTML = `
-                <span>${time} - ${item.preview}...</span>
-                <button class="btn-copy-history" style="background:none; border:none; color: var(--brand-primary); cursor: pointer;">Copy</button>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span class="history-time">${time}</span>
+                    <span>${item.preview}</span>
+                </div>
+                <button class="btn-copy-history" aria-label="Copy item">Copy</button>
             `;
 
             // Bind copy for this item
             row.querySelector('.btn-copy-history').addEventListener('click', async (e) => {
                 await navigator.clipboard.writeText(item.data);
+                const originalText = e.target.textContent;
                 e.target.textContent = 'Copied!';
-                setTimeout(() => e.target.textContent = 'Copy', 1500);
+                setTimeout(() => e.target.textContent = originalText, 1500);
             });
 
             this.dom.historyList.appendChild(row);
@@ -294,22 +304,42 @@ export class UIManager {
 
     showHashResult(hash) {
         this.dom.outputHash.textContent = hash;
+        this.dom.outputHash.classList.remove('error-text'); // Clear error state if any
         this.dom.areaHashOutput.classList.remove('hidden');
+        this.dom.areaHashOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     showStegoResult(dataUrl) {
         this.dom.imgStegoOutput.src = dataUrl;
+        this.dom.imgStegoOutput.classList.remove('hidden');
+
+        // Reset success message
+        const statusMsg = this.dom.areaStegoResult.querySelector('.success-msg');
+        if (statusMsg) {
+            statusMsg.textContent = '✅ Data hidden successfully.';
+            statusMsg.classList.remove('error-text');
+        }
+
+        // Show save button
+        const saveBtn = this.dom.areaStegoResult.querySelector('#btn-stego-save');
+        if (saveBtn) saveBtn.parentElement.classList.remove('hidden');
+
         this.dom.areaStegoResult.classList.remove('hidden');
-        this.dom.areaStegoResult.scrollIntoView({ behavior: 'smooth' });
+        this.dom.areaStegoResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     showStegoRevealResult(text) {
         this.dom.outputStegoReveal.textContent = text;
+        this.dom.outputStegoReveal.classList.remove('error-text');
         this.dom.areaStegoRevealOutput.classList.remove('hidden');
-        this.dom.areaStegoRevealOutput.scrollIntoView({ behavior: 'smooth' });
+        this.dom.areaStegoRevealOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     bindStegoSave() {
+        // ... (existing)
+        // Re-implement or leave as is? The reference implies keeping surrounding code.
+        // Wait, replace_file_content replaces the chunk. I need to keep bindStegoSave if it's in the range. 
+        // It is in the range. I'll include it.
         const saveBtn = document.getElementById('btn-stego-save');
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
@@ -337,15 +367,54 @@ export class UIManager {
         }
 
         this.dom.analyzeResults.classList.remove('hidden');
+        this.dom.analyzeResults.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     showError(section, msg) {
-        if (section === 'encrypt') {
-            alert(msg);
-        } else {
-            this.dom.outputDec.textContent = `Error: ${msg}`;
-            this.dom.outputDec.classList.add('error-text');
-            this.dom.areaDecOutput.classList.remove('hidden');
+        let outputElement, areaElement;
+
+        switch (section) {
+            case 'encrypt':
+                outputElement = this.dom.outputEnc;
+                areaElement = this.dom.areaEncOutput;
+                break;
+            case 'decrypt':
+                outputElement = this.dom.outputDec;
+                areaElement = this.dom.areaDecOutput;
+                break;
+            case 'hash':
+                outputElement = this.dom.outputHash;
+                areaElement = this.dom.areaHashOutput;
+                break;
+            case 'stego-reveal':
+                outputElement = this.dom.outputStegoReveal;
+                areaElement = this.dom.areaStegoRevealOutput;
+                break;
+            case 'stego-hide':
+                // Special handling for Hide structure
+                areaElement = this.dom.areaStegoResult;
+                const statusMsg = areaElement.querySelector('.success-msg');
+                if (statusMsg) {
+                    statusMsg.textContent = `❌ Error: ${msg}`;
+                    statusMsg.classList.add('error-text');
+                    outputElement = statusMsg;
+                }
+
+                // Hide success elements
+                this.dom.imgStegoOutput.classList.add('hidden');
+                const saveBtn = areaElement.querySelector('#btn-stego-save');
+                if (saveBtn) saveBtn.parentElement.classList.add('hidden');
+                break;
+        }
+
+        if (outputElement && section !== 'stego-hide') {
+            outputElement.textContent = `Error: ${msg}`;
+            outputElement.classList.add('error-text');
+        }
+
+        if (areaElement) {
+            areaElement.classList.remove('hidden');
+            areaElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
 

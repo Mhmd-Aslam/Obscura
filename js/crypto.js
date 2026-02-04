@@ -1,13 +1,40 @@
+import { md5 } from './md5.js';
+
 /**
  * Obscura Cryptography Module
- * 
- * Implements AES-GCM encryption with PBKDF2 key derivation.
- * - Uses native Web Crypto API (SubtleCrypto)
- * - Zero external dependencies
- * - Secure defaults (12-byte IV, 256-bit key, 100k iterations)
+ * ...
  */
-
 export class CryptoEngine {
+    // ... constructors ...
+
+    // ... enc/dec ...
+
+    // --- Hashing ---
+
+    async hash(input, algo = 'SHA-256') {
+        let data;
+        let isFile = false;
+
+        if (input instanceof File || input instanceof Blob) {
+            data = await input.arrayBuffer();
+            isFile = true;
+        } else {
+            const enc = new TextEncoder();
+            data = enc.encode(input);
+        }
+
+        if (algo === 'MD5') {
+            // MD5 implementation expects String or Uint8Array/ArrayBuffer
+            return md5(data);
+        }
+
+        const hashBuffer = await window.crypto.subtle.digest(algo, data);
+
+        // Convert buffer to Hex string
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
     constructor() {
         this.config = {
             algoName: 'AES-GCM',
@@ -121,9 +148,20 @@ export class CryptoEngine {
 
     // --- Hashing ---
 
-    async computeHash(message, algo = 'SHA-256') {
-        const enc = new TextEncoder();
-        const data = enc.encode(message);
+    async hash(input, algo = 'SHA-256') {
+        let data;
+
+        if (input instanceof File || input instanceof Blob) {
+            data = await input.arrayBuffer();
+        } else {
+            const enc = new TextEncoder();
+            data = enc.encode(input);
+        }
+
+        if (algo === 'MD5') {
+            return md5(data);
+        }
+
         const hashBuffer = await window.crypto.subtle.digest(algo, data);
 
         // Convert buffer to Hex string

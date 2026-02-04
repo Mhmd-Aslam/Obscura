@@ -89,15 +89,46 @@ export class MessageAnalyzer {
      * Heuristic to guess if it's Hex, Base64, or Plaintext
      */
     guessType(text) {
-        // Hex: 0-9, a-f, even length
-        if (/^[0-9a-fA-F]+$/.test(text) && text.length % 2 === 0) {
-            return 'Hexadecimal (Potential)';
+        const cleanText = text.trim();
+
+        // 1. Check for Obscura Packed Format (salt:iv:ciphertext)
+        // Format: Base64 strings separated by ':'
+        if (cleanText.includes(':')) {
+            const parts = cleanText.split(':');
+            const isBase64Parts = parts.every(part => /^[A-Za-z0-9+/=]+$/.test(part));
+            if (parts.length === 3 && isBase64Parts) {
+                return 'Obscura Packet (Encrypted)';
+            }
         }
 
-        // Base64: A-Z, a-z, 0-9, +, /, maybe = padding
-        // Regex is a bit loose to catch potential fragments
-        if (/^[A-Za-z0-9+/]+={0,2}$/.test(text) && text.length % 4 === 0) {
-            return 'Base64 (Potential)';
+        // 2. Hexadecimal
+        // Ignore whitespace and optional '0x' prefix
+        const hexClean = cleanText.replace(/\s+/g, '').toLowerCase().replace(/^0x/, '');
+        if (/^[0-9a-f]+$/.test(hexClean) && hexClean.length > 4 && hexClean.length % 2 === 0) {
+            return 'Hexadecimal';
+        }
+
+        // 3. Base64
+        // Relaxed check: Allow whitespace, don't enforce strict % 4 length for detection (just pattern)
+        const b64Clean = cleanText.replace(/\s+/g, '');
+        // Must be long enough to be meaningful and match char set
+        if (b64Clean.length > 8 && /^[A-Za-z0-9+/]+={0,2}$/.test(b64Clean)) {
+            // Distinguishing from heavy alphanumeric text is hard. 
+            // Often Base64 has specific endings (=) or no spaces.
+            // Let's rely on high entropy + charset if no spaces were present in original (or few).
+            if (cleanText.length % 4 === 0 || cleanText.includes('=')) {
+                return 'Base64 (Potential)';
+            }
+        }
+
+        // 4. Entropy Fallback
+        // Standard English text usually has entropy ~4.0 - 4.5 bits/char.
+        // Compressed/Encrypted data is usually > 5.5 bits/char.
+        // Base64 encoding actually reduces entropy per character relative to raw binary, 
+        // but high randomness text will still be high.
+        const entropy = parseFloat(this.calculateEntropy(cleanText));
+        if (entropy > 5.0) {
+            return 'High Entropy (Random/Encrypted)';
         }
 
         return 'Plaintext';

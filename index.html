@@ -97,18 +97,18 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary">Encrypt Data</button>
+                    <button type="submit" class="btn-primary">Encrypt Message</button>
                     <button type="reset" class="btn-secondary btn-sm">Clear</button>
                 </div>
-            </form>
 
-            <div id="enc-output-area" class="output-area hidden" aria-live="polite">
-                <h3>Encrypted Result</h3>
-                <div class="code-display">
-                    <pre id="enc-result"></pre>
-                    <button type="button" class="btn-copy" aria-label="Copy encrypted result">Copy</button>
+                <div id="enc-output-area" class="output-area hidden" aria-live="polite">
+                    <h3>Encrypted Message</h3>
+                    <div class="code-display">
+                        <pre id="enc-result"></pre>
+                        <button type="button" class="btn-copy" aria-label="Copy encrypted message">Copy</button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </section>
 
         <!-- SEC 2: Decryption -->
@@ -135,15 +135,15 @@
                     <button type="submit" class="btn-primary">Decrypt Data</button>
                     <button type="reset" class="btn-secondary btn-sm">Clear</button>
                 </div>
-            </form>
 
-            <div id="dec-output-area" class="output-area hidden" aria-live="polite">
-                <h3>Decrypted Message</h3>
-                <div class="plaintext-display">
-                    <p id="dec-result"></p>
-                    <button type="button" class="btn-copy" aria-label="Copy decrypted message">Copy</button>
+                <div id="dec-output-area" class="output-area hidden" aria-live="polite">
+                    <h3>Decrypted Message</h3>
+                    <div class="plaintext-display">
+                        <p id="dec-result"></p>
+                        <button type="button" class="btn-copy" aria-label="Copy decrypted message">Copy</button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </section>
 
         <!-- SEC 3: Steganography (Nested) -->
@@ -186,17 +186,17 @@
                         <button type="button" id="btn-stego-hide" class="btn-primary">Hide Data</button>
                         <button type="reset" class="btn-secondary btn-sm">Clear</button>
                     </div>
-                </form>
 
-                <div id="stego-result-area" class="output-area hidden">
-                    <h3>Steganography Result</h3>
-                    <p class="success-msg">✅ Data hidden successfully.</p>
-                    <div class="form-actions">
-                        <button type="button" id="btn-stego-save" class="btn-primary">⬇️ Save Encoded Image</button>
+                    <div id="stego-result-area" class="output-area hidden">
+                        <h3>Steganography Result</h3>
+                        <p class="success-msg">✅ Data hidden successfully.</p>
+                        <div class="form-actions">
+                            <button type="button" id="btn-stego-save" class="btn-primary">⬇️ Save Encoded Image</button>
+                        </div>
+                        <!-- Hidden source for download -->
+                        <img id="stego-output" class="hidden" alt="Hidden Stored Image">
                     </div>
-                    <!-- Hidden source for download -->
-                    <img id="stego-output" class="hidden" alt="Hidden Stored Image">
-                </div>
+                </form>
             </div>
 
             <!-- Reveal Panel -->
@@ -217,15 +217,15 @@
                         <button type="button" id="btn-stego-reveal" class="btn-primary">Reveal Data</button>
                         <button type="reset" class="btn-secondary btn-sm">Clear</button>
                     </div>
-                </form>
 
-                <div id="stego-reveal-output-area" class="output-area hidden" aria-live="polite">
-                    <h3>Revealed Message</h3>
-                    <div class="plaintext-display">
-                        <p id="stego-reveal-result"></p>
-                        <button type="button" class="btn-copy" aria-label="Copy revealed message">Copy</button>
+                    <div id="stego-reveal-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Revealed Message</h3>
+                        <div class="plaintext-display">
+                            <p id="stego-reveal-result"></p>
+                            <button type="button" class="btn-copy" aria-label="Copy revealed message">Copy</button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
 
             <canvas id="stego-canvas" class="hidden"></canvas>
@@ -251,23 +251,66 @@
                     <input type="file" id="hash-file" name="file">
                 </div>
 
-                <fieldset class="options-group">
-                    <legend>Algorithm</legend>
-                    <label><input type="radio" name="algo" value="SHA-256" checked> SHA-256</label>
-                    <label><input type="radio" name="algo" value="SHA-512"> SHA-512</label>
-                    <label><input type="radio" name="algo" value="SHA-1"> SHA-1 (Unsafe)</label>
-                </fieldset>
+                <div class="form-group">
+                    <label>Select Algorithm</label>
+                    <div class="algo-grid">
+                        <label class="algo-card">
+                            <input type="radio" name="algo" value="SHA-256" checked>
+                            <span class="algo-content">
+                                <span class="algo-name">SHA-256</span>
+                                <span class="algo-tag">Standard</span>
+                            </span>
+                        </label>
+
+                        <label class="algo-card">
+                            <input type="radio" name="algo" value="SHA-512">
+                            <span class="algo-content">
+                                <span class="algo-name">SHA-512</span>
+                                <span class="algo-tag">Strongest</span>
+                            </span>
+                        </label>
+
+                        <label class="algo-card">
+                            <input type="radio" name="algo" value="SHA-384">
+                            <span class="algo-content">
+                                <span class="algo-name">SHA-384</span>
+                                <span class="algo-tag">Balanced</span>
+                            </span>
+                        </label>
+
+                        <label class="algo-card">
+                            <input type="radio" name="algo" value="MD5">
+                            <span class="algo-content">
+                                <span class="algo-name">MD5</span>
+                                <span class="algo-tag warning">Popular/Legacy</span>
+                            </span>
+                        </label>
+
+                        <label class="algo-card">
+                            <input type="radio" name="algo" value="SHA-1">
+                            <span class="algo-content">
+                                <span class="algo-name">SHA-1</span>
+                                <span class="algo-tag warning">Unsafe</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Generate Hash</button>
                     <button type="reset" class="btn-secondary btn-sm">Clear</button>
                 </div>
-            </form>
 
-            <div id="hash-output-area" class="output-area hidden" aria-live="polite">
-                <h3>Hash Output</h3>
-                <code id="hash-result" class="hash-string"></code>
-            </div>
+                <div id="hash-output-area" class="output-area hidden" aria-live="polite">
+                    <h3>Hash Output</h3>
+                    <div class="plaintext-display">
+                        <p id="hash-result"
+                            style="font-family: var(--font-mono); word-break: break-all; color: var(--accent-primary);">
+                        </p>
+                        <button type="button" class="btn-copy" aria-label="Copy hash">Copy</button>
+                    </div>
+                </div>
+            </form>
         </section>
 
         <!-- SEC 5: Analyzer -->
@@ -285,30 +328,38 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary">Analyze</button>
+                    <button type="submit" class="btn-primary">Analyze Text</button>
                     <button type="reset" class="btn-secondary btn-sm">Clear</button>
                 </div>
-            </form>
 
-            <div id="analyze-results" class="stats-grid hidden">
-                <div class="stat-card">
-                    <span class="stat-label">Entropy (bits/char)</span>
-                    <span id="stat-entropy" class="stat-value">--</span>
+                <div id="analyze-results" class="output-area hidden" aria-live="polite">
+                    <h3>Analysis Report</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">Entropy</span>
+                            <span class="stat-value" id="stat-entropy">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Length</span>
+                            <span class="stat-value" id="stat-length">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Detected Type</span>
+                            <span class="stat-value" id="stat-type">-</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">Length</span>
-                    <span id="stat-length" class="stat-value">--</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Detected Type</span>
-                    <span id="stat-type" class="stat-value">--</span>
-                </div>
-            </div>
+            </form>
         </section>
 
     </main>
 
 
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>&copy; 2026 Developed by <span class="developer-name">Mhmd Aslam</span>. All rights reserved.</p>
+    </footer>
 
     <!-- Custom Modal -->
     <div id="custom-modal" class="modal-overlay hidden" aria-hidden="true">

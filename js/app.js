@@ -134,7 +134,7 @@ class App {
                 this.ui.showStegoResult(resultUrl);
             } catch (err) {
                 console.error(err);
-                this.ui.showDialog(err.message, 'Steganography Error');
+                this.ui.showError('stego-hide', err.message);
             }
         });
 
@@ -151,13 +151,13 @@ class App {
             try {
                 const msg = await this.stego.decode(file, pass);
                 if (!msg || msg.length === 0) {
-                    this.ui.showDialog('No hidden message found or message is empty.', 'No Data');
+                    this.ui.showError('stego-reveal', 'No hidden message found or message is empty.');
                 } else {
                     this.ui.showStegoRevealResult(msg);
                 }
             } catch (err) {
                 console.error(err);
-                this.ui.showDialog('Failed to decode. Incorrect password or invalid image?', 'Error');
+                this.ui.showError('stego-reveal', 'Failed to decode. Incorrect password or invalid image?');
             }
         });
 
@@ -184,7 +184,7 @@ class App {
                 this.ui.showHashResult(hash);
             } catch (err) {
                 console.error(err);
-                this.ui.showDialog('Hashing failed.', 'Error');
+                this.ui.showError('hash', 'Hashing failed.');
             }
         });
 
