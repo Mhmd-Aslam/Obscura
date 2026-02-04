@@ -813,6 +813,129 @@ pre,
     word-wrap: break-word;
 }
 
+/* --- Password Strength Meter --- */
+.strength-meter {
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.strength-meter:not(.hidden) {
+    opacity: 1;
+}
+
+.strength-bar-container {
+    height: 4px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--danger);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+}
+
+.strength-label {
+    font-size: 0.75rem;
+    text-align: right;
+    margin-top: 4px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+}
+
+/* Strength Levels */
+.strength-bar.weak {
+    background-color: var(--danger);
+}
+
+.strength-label.weak {
+    color: var(--danger);
+}
+
+.strength-bar.medium {
+    background-color: var(--warning);
+}
+
+.strength-label.medium {
+    color: var(--warning);
+}
+
+.strength-bar.strong {
+    background-color: var(--success);
+}
+
+.strength-label.strong {
+    color: var(--success);
+}
+
+.strength-bar.secure {
+    background-color: #3b82f6;
+}
+
+.strength-label.secure {
+    color: #3b82f6;
+}
+
+/* --- Mode Toggle --- */
+.mode-toggle {
+    display: flex;
+    gap: 8px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    width: fit-content;
+}
+
+.mode-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.mode-btn.active {
+    background: var(--brand-primary);
+    color: #000;
+}
+
+/* --- File Preview --- */
+.file-preview {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.file-preview p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.file-preview strong {
+    color: var(--text-primary);
+}
+
+.file-size-error {
+    color: var(--danger);
+    font-weight: 600;
+}
+
 /* --- Modal --- */
 .modal-overlay {
     position: fixed;

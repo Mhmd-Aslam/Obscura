@@ -146,6 +146,97 @@ export class CryptoEngine {
         }
     }
 
+    /**
+     * Encrypts a file (binary data) with metadata
+     * @param {ArrayBuffer} fileBuffer - The file data
+     * @param {string} password - Encryption password
+     * @param {Object} metadata - File metadata {filename, type, size}
+     * @returns {Blob} - Encrypted .obs file blob
+     */
+    async encryptFile(fileBuffer, password, metadata) {
+        try {
+            const salt = window.crypto.getRandomValues(new Uint8Array(this.config.saltLength));
+            const iv = window.crypto.getRandomValues(new Uint8Array(this.config.ivLength));
+            const key = await this.deriveKey(password, salt);
+
+            // Encrypt metadata
+            const metaString = JSON.stringify(metadata);
+            const metaEnc = new TextEncoder();
+            const encryptedMeta = await window.crypto.subtle.encrypt(
+                { name: this.config.algoName, iv: iv },
+                key,
+                metaEnc.encode(metaString)
+            );
+
+            // Encrypt file data
+            const encryptedData = await window.crypto.subtle.encrypt(
+                { name: this.config.algoName, iv: iv },
+                key,
+                fileBuffer
+            );
+
+            // Pack: salt:iv:encryptedMeta:encryptedData
+            const packed = `${this.bufferToBase64(salt)}:${this.bufferToBase64(iv)}:${this.bufferToBase64(encryptedMeta)}:${this.bufferToBase64(encryptedData)}`;
+
+            return new Blob([packed], { type: 'application/octet-stream' });
+        } catch (err) {
+            throw new Error(`File encryption failed: ${err.message}`);
+        }
+    }
+
+    /**
+     * Decrypts a .obs file
+     * @param {Blob} obsBlob - The encrypted .obs file
+     * @param {string} password - Decryption password
+     * @returns {Object} - {blob, filename, type}
+     */
+    async decryptFile(obsBlob, password) {
+        try {
+            const text = await obsBlob.text();
+            const parts = text.split(':');
+
+            if (parts.length !== 4) {
+                throw new Error("Invalid .obs file format");
+            }
+
+            const [saltB64, ivB64, metaB64, dataB64] = parts;
+            const salt = this.base64ToBuffer(saltB64);
+            const iv = this.base64ToBuffer(ivB64);
+            const encryptedMeta = this.base64ToBuffer(metaB64);
+            const encryptedData = this.base64ToBuffer(dataB64);
+
+            const key = await this.deriveKey(password, salt);
+
+            // Decrypt metadata
+            const metaBuffer = await window.crypto.subtle.decrypt(
+                { name: this.config.algoName, iv: iv },
+                key,
+                encryptedMeta
+            );
+            const metaDec = new TextDecoder();
+            const metadata = JSON.parse(metaDec.decode(metaBuffer));
+
+            // Decrypt file data
+            const dataBuffer = await window.crypto.subtle.decrypt(
+                { name: this.config.algoName, iv: iv },
+                key,
+                encryptedData
+            );
+
+            const blob = new Blob([dataBuffer], { type: metadata.type || 'application/octet-stream' });
+
+            return {
+                blob,
+                filename: metadata.filename,
+                type: metadata.type,
+                size: metadata.size
+            };
+        } catch (err) {
+            console.error(err);
+            throw new Error("File decryption failed. Incorrect password or corrupted file.");
+        }
+    }
+
     // --- Hashing ---
 
     async hash(input, algo = 'SHA-256') {

@@ -82,68 +82,161 @@
                 <p>Secure your text using AES-GCM 256-bit encryption.</p>
             </header>
 
-            <form id="form-encrypt" class="security-form">
-                <div class="form-group">
-                    <label for="enc-message">Message Content</label>
-                    <textarea id="enc-message" name="message" required
-                        placeholder="Enter the secret message you wish to encrypt..."></textarea>
+            <!-- Sub Nav -->
+            <div class="sub-nav" role="tablist">
+                <div class="sub-nav-list">
+                    <button type="button" id="btn-text-mode" class="sub-nav-btn active">Text</button>
+                    <button type="button" id="btn-file-mode" class="sub-nav-btn">File</button>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="enc-pass">Passphrase</label>
-                    <input type="password" id="enc-pass" name="password" required
-                        placeholder="Enter a strong passphrase" autocomplete="off">
-                    <div id="enc-strength" class="strength-indicator" aria-live="polite"></div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Encrypt Message</button>
-                    <button type="reset" class="btn-secondary btn-sm">Clear</button>
-                </div>
-
-                <div id="enc-output-area" class="output-area hidden" aria-live="polite">
-                    <h3>Encrypted Message</h3>
-                    <div class="code-display">
-                        <pre id="enc-result"></pre>
-                        <button type="button" class="btn-copy" aria-label="Copy encrypted message">Copy</button>
+            <!-- Text Encryption -->
+            <div id="text-mode-group">
+                <form id="form-encrypt" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="enc-message">Message Content</label>
+                        <textarea id="enc-message" name="message" required
+                            placeholder="Enter the secret message you wish to encrypt..."></textarea>
                     </div>
-                </div>
-            </form>
+
+                    <div class="form-group">
+                        <label for="enc-pass">Passphrase</label>
+                        <input type="password" id="enc-pass" name="password" required
+                            placeholder="Enter a strong passphrase" autocomplete="off">
+                        <!-- Strength Meter -->
+                        <div class="strength-meter hidden" id="enc-pass-meter">
+                            <div class="strength-bar-container">
+                                <div class="strength-bar" id="enc-strength-bar"></div>
+                            </div>
+                            <div class="strength-label" id="enc-strength-text"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Encrypt Message</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="enc-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Encrypted Message</h3>
+                        <div class="code-display">
+                            <pre id="enc-result"></pre>
+                            <button type="button" class="btn-copy" aria-label="Copy encrypted message">Copy</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- File Encryption -->
+            <div id="file-mode-group" class="hidden">
+                <form id="form-encrypt-file" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="enc-file">File Upload (Max 10MB)</label>
+                        <input type="file" id="enc-file" name="file" accept="*/*">
+                        <div id="file-preview" class="file-preview hidden"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="enc-file-pass">Passphrase</label>
+                        <input type="password" id="enc-file-pass" name="password" required
+                            placeholder="Enter a strong passphrase" autocomplete="off">
+                        <!-- Strength Meter -->
+                        <div class="strength-meter hidden" id="enc-file-pass-meter">
+                            <div class="strength-bar-container">
+                                <div class="strength-bar" id="enc-file-strength-bar"></div>
+                            </div>
+                            <div class="strength-label" id="enc-file-strength-text"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Encrypt File</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="enc-file-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Encryption Result</h3>
+                        <div class="plaintext-display">
+                            <p id="enc-file-result"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </section>
 
         <!-- SEC 2: Decryption -->
         <section id="panel-decrypt" class="panel hidden" role="tabpanel" aria-labelledby="tab-decrypt">
             <header class="panel-header">
                 <h2>Message Decryption</h2>
-                <p>Decrypt a previously secured message.</p>
+                <p>Decrypt a previously secured message or file.</p>
             </header>
 
-            <form id="form-decrypt" class="security-form">
-                <div class="form-group">
-                    <label for="dec-data">Encrypted Data (Cipher String)</label>
-                    <textarea id="dec-data" name="ciphertext" required
-                        placeholder='Paste the packed cipher string here...'></textarea>
+            <!-- Sub Nav -->
+            <div class="sub-nav" role="tablist">
+                <div class="sub-nav-list">
+                    <button type="button" id="btn-dec-text-mode" class="sub-nav-btn active">Text</button>
+                    <button type="button" id="btn-dec-file-mode" class="sub-nav-btn">File</button>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="dec-pass">Passphrase</label>
-                    <input type="password" id="dec-pass" name="password" required
-                        placeholder="Enter the original passphrase" autocomplete="off">
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Decrypt Data</button>
-                    <button type="reset" class="btn-secondary btn-sm">Clear</button>
-                </div>
-
-                <div id="dec-output-area" class="output-area hidden" aria-live="polite">
-                    <h3>Decrypted Message</h3>
-                    <div class="plaintext-display">
-                        <p id="dec-result"></p>
-                        <button type="button" class="btn-copy" aria-label="Copy decrypted message">Copy</button>
+            <!-- Text Decryption -->
+            <div id="dec-text-mode-group">
+                <form id="form-decrypt" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="dec-data">Encrypted Data (Cipher String)</label>
+                        <textarea id="dec-data" name="ciphertext" required
+                            placeholder='Paste the packed cipher string here...'></textarea>
                     </div>
-                </div>
-            </form>
+
+                    <div class="form-group">
+                        <label for="dec-pass">Passphrase</label>
+                        <input type="password" id="dec-pass" name="password" required
+                            placeholder="Enter the original passphrase" autocomplete="off">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Decrypt Data</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="dec-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Decrypted Message</h3>
+                        <div class="plaintext-display">
+                            <p id="dec-result"></p>
+                            <button type="button" class="btn-copy" aria-label="Copy decrypted message">Copy</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- File Decryption -->
+            <div id="dec-file-mode-group" class="hidden">
+                <form id="form-decrypt-file" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="dec-file">.obs File Upload</label>
+                        <input type="file" id="dec-file" name="file" accept=".obs">
+                        <div id="dec-file-preview" class="file-preview hidden"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dec-file-pass">Passphrase</label>
+                        <input type="password" id="dec-file-pass" name="password" required
+                            placeholder="Enter the original passphrase" autocomplete="off">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Decrypt File</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="dec-file-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Decryption Result</h3>
+                        <div class="plaintext-display">
+                            <p id="dec-file-result"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </section>
 
         <!-- SEC 3: Steganography (Nested) -->
@@ -165,7 +258,7 @@
 
             <!-- Hide Panel -->
             <div id="stego-view-hide" role="tabpanel">
-                <form id="form-stego-hide" class="security-form">
+                <form id="form-stego-hide" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="stego-image">Cover Image</label>
                         <input type="file" id="stego-image" name="image" accept="image/png, image/jpeg">
@@ -180,6 +273,13 @@
                         <label for="stego-pass">Lock Password (Required)</label>
                         <input type="password" id="stego-pass" name="password" required
                             placeholder="Password to lock the hidden message...">
+                        <!-- Strength Meter -->
+                        <div class="strength-meter hidden" id="stego-pass-meter">
+                            <div class="strength-bar-container">
+                                <div class="strength-bar" id="stego-strength-bar"></div>
+                            </div>
+                            <div class="strength-label" id="stego-strength-text"></div>
+                        </div>
                     </div>
 
                     <div class="form-actions">
@@ -201,7 +301,7 @@
 
             <!-- Reveal Panel -->
             <div id="stego-view-reveal" role="tabpanel" class="hidden">
-                <form id="form-stego-reveal" class="security-form">
+                <form id="form-stego-reveal" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="stego-reveal-image">Encoded Image</label>
                         <input type="file" id="stego-reveal-image" name="image" accept="image/png, image/jpeg">
@@ -238,79 +338,153 @@
                 <p>Generate fingerprints for your data using SHA-256, SHA-512, etc.</p>
             </header>
 
-            <form id="form-hash" class="security-form">
-                <div class="form-group">
-                    <label for="hash-input">Input Text</label>
-                    <textarea id="hash-input" name="input" placeholder="Text to hash..."></textarea>
+            <!-- Sub Nav -->
+            <div class="sub-nav" role="tablist">
+                <div class="sub-nav-list">
+                    <button type="button" id="btn-hash-text-mode" class="sub-nav-btn active">Text</button>
+                    <button type="button" id="btn-hash-file-mode" class="sub-nav-btn">File</button>
                 </div>
+            </div>
 
-                <span class="divider">OR</span>
-
-                <div class="form-group">
-                    <label for="hash-file">Input File</label>
-                    <input type="file" id="hash-file" name="file">
-                </div>
-
-                <div class="form-group">
-                    <label>Select Algorithm</label>
-                    <div class="algo-grid">
-                        <label class="algo-card">
-                            <input type="radio" name="algo" value="SHA-256" checked>
-                            <span class="algo-content">
-                                <span class="algo-name">SHA-256</span>
-                                <span class="algo-tag">Standard</span>
-                            </span>
-                        </label>
-
-                        <label class="algo-card">
-                            <input type="radio" name="algo" value="SHA-512">
-                            <span class="algo-content">
-                                <span class="algo-name">SHA-512</span>
-                                <span class="algo-tag">Strongest</span>
-                            </span>
-                        </label>
-
-                        <label class="algo-card">
-                            <input type="radio" name="algo" value="SHA-384">
-                            <span class="algo-content">
-                                <span class="algo-name">SHA-384</span>
-                                <span class="algo-tag">Balanced</span>
-                            </span>
-                        </label>
-
-                        <label class="algo-card">
-                            <input type="radio" name="algo" value="MD5">
-                            <span class="algo-content">
-                                <span class="algo-name">MD5</span>
-                                <span class="algo-tag warning">Popular/Legacy</span>
-                            </span>
-                        </label>
-
-                        <label class="algo-card">
-                            <input type="radio" name="algo" value="SHA-1">
-                            <span class="algo-content">
-                                <span class="algo-name">SHA-1</span>
-                                <span class="algo-tag warning">Unsafe</span>
-                            </span>
-                        </label>
+            <!-- Text Hashing -->
+            <div id="hash-text-mode-group">
+                <form id="form-hash" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="hash-input">Input Text</label>
+                        <textarea id="hash-input" name="input" placeholder="Text to hash..."></textarea>
                     </div>
-                </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Generate Hash</button>
-                    <button type="reset" class="btn-secondary btn-sm">Clear</button>
-                </div>
+                    <div class="form-group">
+                        <label>Select Algorithm</label>
+                        <div class="algo-grid">
+                            <label class="algo-card">
+                                <input type="radio" name="algo" value="SHA-256" checked>
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-256</span>
+                                    <span class="algo-tag">Standard</span>
+                                </span>
+                            </label>
 
-                <div id="hash-output-area" class="output-area hidden" aria-live="polite">
-                    <h3>Hash Output</h3>
-                    <div class="plaintext-display">
-                        <p id="hash-result"
-                            style="font-family: var(--font-mono); word-break: break-all; color: var(--accent-primary);">
-                        </p>
-                        <button type="button" class="btn-copy" aria-label="Copy hash">Copy</button>
+                            <label class="algo-card">
+                                <input type="radio" name="algo" value="SHA-512">
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-512</span>
+                                    <span class="algo-tag">Strongest</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo" value="SHA-384">
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-384</span>
+                                    <span class="algo-tag">Balanced</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo" value="MD5">
+                                <span class="algo-content">
+                                    <span class="algo-name">MD5</span>
+                                    <span class="algo-tag warning">Popular/Legacy</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo" value="SHA-1">
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-1</span>
+                                    <span class="algo-tag warning">Unsafe</span>
+                                </span>
+                            </label>
+                        </div>
                     </div>
-                </div>
-            </form>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Generate Hash</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="hash-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Hash Output</h3>
+                        <div class="plaintext-display">
+                            <p id="hash-result"
+                                style="font-family: var(--font-mono); word-break: break-all; color: var(--accent-primary);">
+                            </p>
+                            <button type="button" class="btn-copy" aria-label="Copy hash">Copy</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- File Hashing -->
+            <div id="hash-file-mode-group" class="hidden">
+                <form id="form-hash-file" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="hash-file">Input File</label>
+                        <input type="file" id="hash-file" name="file">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Algorithm</label>
+                        <div class="algo-grid">
+                            <label class="algo-card">
+                                <input type="radio" name="algo-file" value="SHA-256" checked>
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-256</span>
+                                    <span class="algo-tag">Standard</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo-file" value="SHA-512">
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-512</span>
+                                    <span class="algo-tag">Strongest</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo-file" value="SHA-384">
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-384</span>
+                                    <span class="algo-tag">Balanced</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo-file" value="MD5">
+                                <span class="algo-content">
+                                    <span class="algo-name">MD5</span>
+                                    <span class="algo-tag warning">Popular/Legacy</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="algo-file" value="SHA-1">
+                                <span class="algo-content">
+                                    <span class="algo-name">SHA-1</span>
+                                    <span class="algo-tag warning">Unsafe</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Generate Hash</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="hash-file-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Hash Output</h3>
+                        <div class="plaintext-display">
+                            <p id="hash-file-result"
+                                style="font-family: var(--font-mono); word-break: break-all; color: var(--accent-primary);">
+                            </p>
+                            <button type="button" class="btn-copy" aria-label="Copy hash">Copy</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </section>
 
         <!-- SEC 5: Analyzer -->
@@ -320,7 +494,7 @@
                 <p>Analyze entropy, character frequency, and detect encoding types.</p>
             </header>
 
-            <form id="form-analyze" class="security-form">
+            <form id="form-analyze" class="security-form" onsubmit="return false;">
                 <div class="form-group">
                     <label for="analyze-input">Data to Analyze</label>
                     <textarea id="analyze-input" name="data"

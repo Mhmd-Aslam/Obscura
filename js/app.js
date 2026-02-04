@@ -20,27 +20,89 @@ class App {
         // Encrypt Action
         this.ui.dom.formEncrypt.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const msg = this.ui.dom.inputEncMsg.value;
+
+            // Check if in file mode
+            const isFileMode = this.ui.dom.btnFileMode && this.ui.dom.btnFileMode.classList.contains('active');
             const pass = this.ui.dom.inputEncPass.value;
 
-            // Optional: User selected Destruct Timer
-            const timer = this.security.ui.getSelfDestructTime();
-
-            if (!msg || !pass) return;
+            if (!pass) return;
 
             try {
-                // Pass timer to encrypt (wraps it in payload)
-                const encrypted = await this.crypto.encrypt(msg, pass, timer);
-                this.ui.showEncryptResult(encrypted);
+                if (isFileMode) {
+                    // File encryption
+                    const file = this.ui.dom.inputEncFile.files[0];
+                    if (!file) {
+                        throw new Error("Please select a file to encrypt");
+                    }
 
-                // Add to history
-                this.history.add(encrypted);
-                this.ui.renderHistory(this.history.getAll());
+                    const fileBuffer = await file.arrayBuffer();
+                    const metadata = {
+                        filename: file.name,
+                        type: file.type,
+                        size: file.size,
+                        timestamp: Date.now()
+                    };
+
+                    const encryptedBlob = await this.crypto.encryptFile(fileBuffer, pass, metadata);
+
+                    // Download as .obs file
+                    const downloadName = file.name.replace(/\.[^/.]+$/, '') + '.obs';
+                    this.downloadFile(encryptedBlob, downloadName);
+
+                    // Show success
+                    this.ui.showEncryptResult(`✅ File encrypted! Download started: ${downloadName}`);
+                } else {
+                    // Text encryption (existing logic)
+                    const msg = this.ui.dom.inputEncMsg.value;
+                    const timer = this.security.ui.getSelfDestructTime();
+
+                    if (!msg) return;
+
+                    const encrypted = await this.crypto.encrypt(msg, pass, timer);
+                    this.ui.showEncryptResult(encrypted);
+
+                    // Add to history
+                    this.history.add(encrypted);
+                    this.ui.renderHistory(this.history.getAll());
+                }
             } catch (err) {
                 console.error(err);
                 this.ui.showError('encrypt', err.message);
             }
         });
+
+        // File Encryption Form Handler
+        if (this.ui.dom.formEncryptFile) {
+            this.ui.dom.formEncryptFile.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const file = this.ui.dom.inputEncFile.files[0];
+                const pass = this.ui.dom.inputEncFilePass.value;
+
+                if (!file || !pass) return;
+
+                try {
+                    const fileBuffer = await file.arrayBuffer();
+                    const metadata = {
+                        filename: file.name,
+                        type: file.type,
+                        size: file.size,
+                        timestamp: Date.now()
+                    };
+
+                    const encryptedBlob = await this.crypto.encryptFile(fileBuffer, pass, metadata);
+                    const downloadName = file.name.replace(/\.[^/.]+$/, '') + '.obs';
+                    this.downloadFile(encryptedBlob, downloadName);
+
+                    this.ui.dom.outputEncFile.textContent = `✅ File encrypted! Download started: ${downloadName}`;
+                    this.ui.dom.outputEncFile.classList.remove('error-text');
+                    this.ui.dom.areaEncFileOutput.classList.remove('hidden');
+                    this.ui.dom.areaEncFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (err) {
+                    console.error(err);
+                    this.ui.showError('encrypt', err.message);
+                }
+            });
+        }
 
         // Decrypt Action
         this.ui.dom.formDecrypt.addEventListener('submit', async (e) => {
@@ -98,6 +160,33 @@ class App {
                 this.ui.showError('decrypt', err.message);
             }
         });
+
+        // Decrypt File Action
+        if (this.ui.dom.formDecryptFile) {
+            this.ui.dom.formDecryptFile.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const file = this.ui.dom.inputDecFile.files[0];
+                const pass = this.ui.dom.inputDecFilePass.value;
+
+                if (!file || !pass) return;
+
+                try {
+                    const result = await this.crypto.decryptFile(file, pass);
+
+                    // Download the decrypted file
+                    this.downloadFile(result.blob, result.filename);
+
+                    // Show success
+                    this.ui.dom.outputDecFile.textContent = `✅ File decrypted! Download started: ${result.filename}`;
+                    this.ui.dom.outputDecFile.classList.remove('error-text');
+                    this.ui.dom.areaDecFileOutput.classList.remove('hidden');
+                    this.ui.dom.areaDecFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (err) {
+                    console.error(err);
+                    this.ui.showError('decrypt', err.message);
+                }
+            });
+        }
 
         // History UI Clear
         if (this.ui.dom.btnClearHistory) {
@@ -188,6 +277,34 @@ class App {
             }
         });
 
+        // File Hashing Action
+        if (this.ui.dom.formHashFile) {
+            this.ui.dom.formHashFile.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const file = formData.get('file');
+                const algo = formData.get('algo-file');
+
+                if (!file || file.size === 0) {
+                    this.ui.showError('hash', 'Please select a file.');
+                    return;
+                }
+
+                try {
+                    const hash = await this.crypto.hash(file, algo);
+
+                    // Show result in file output area
+                    this.ui.dom.outputHashFile.textContent = hash;
+                    this.ui.dom.outputHashFile.classList.remove('error-text');
+                    this.ui.dom.areaHashFileOutput.classList.remove('hidden');
+                    this.ui.dom.areaHashFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (err) {
+                    console.error(err);
+                    this.ui.showError('hash', 'File hashing failed.');
+                }
+            });
+        }
+
         // Analyzer: Analyze Text
         this.ui.dom.formAnalyze.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -199,6 +316,20 @@ class App {
             const stats = this.analyzer.analyze(text);
             this.ui.showAnalysisResult(stats);
         });
+    }
+
+    /**
+     * Helper to trigger file download
+     */
+    downloadFile(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 }
 

@@ -18,6 +18,18 @@ export class UIManager {
             areaEncOutput: document.getElementById('enc-output-area'),
             outputEnc: document.getElementById('enc-result'),
 
+            // File Mode
+            btnTextMode: document.getElementById('btn-text-mode'),
+            btnFileMode: document.getElementById('btn-file-mode'),
+            textModeGroup: document.getElementById('text-mode-group'),
+            fileModeGroup: document.getElementById('file-mode-group'),
+            formEncryptFile: document.getElementById('form-encrypt-file'),
+            inputEncFile: document.getElementById('enc-file'),
+            inputEncFilePass: document.getElementById('enc-file-pass'),
+            filePreview: document.getElementById('file-preview'),
+            areaEncFileOutput: document.getElementById('enc-file-output-area'),
+            outputEncFile: document.getElementById('enc-file-result'),
+
             // Decrypt Section
             formDecrypt: document.getElementById('form-decrypt'),
             inputDecData: document.getElementById('dec-data'),
@@ -25,10 +37,31 @@ export class UIManager {
             areaDecOutput: document.getElementById('dec-output-area'),
             outputDec: document.getElementById('dec-result'),
 
+            // Decrypt File Mode
+            btnDecTextMode: document.getElementById('btn-dec-text-mode'),
+            btnDecFileMode: document.getElementById('btn-dec-file-mode'),
+            decTextModeGroup: document.getElementById('dec-text-mode-group'),
+            decFileModeGroup: document.getElementById('dec-file-mode-group'),
+            formDecryptFile: document.getElementById('form-decrypt-file'),
+            inputDecFile: document.getElementById('dec-file'),
+            inputDecFilePass: document.getElementById('dec-file-pass'),
+            decFilePreview: document.getElementById('dec-file-preview'),
+            areaDecFileOutput: document.getElementById('dec-file-output-area'),
+            outputDecFile: document.getElementById('dec-file-result'),
+
             // Hash Section
             formHash: document.getElementById('form-hash'),
             outputHash: document.getElementById('hash-result'),
             areaHashOutput: document.getElementById('hash-output-area'),
+
+            // Hash File Mode
+            btnHashTextMode: document.getElementById('btn-hash-text-mode'),
+            btnHashFileMode: document.getElementById('btn-hash-file-mode'),
+            hashTextModeGroup: document.getElementById('hash-text-mode-group'),
+            hashFileModeGroup: document.getElementById('hash-file-mode-group'),
+            formHashFile: document.getElementById('form-hash-file'),
+            outputHashFile: document.getElementById('hash-file-result'),
+            areaHashFileOutput: document.getElementById('hash-file-output-area'),
 
             // Stego Section (Split)
             formStegoHide: document.getElementById('form-stego-hide'),
@@ -76,6 +109,8 @@ export class UIManager {
         this.bindModal();
         this.bindTheme();
         this.bindStegoSave();
+        this.bindPasswordStrength();
+        this.bindFileMode();
     }
 
     bindClearButtons() {
@@ -444,22 +479,186 @@ export class UIManager {
         // 2. Self Destruct Options in Encrypt Form
         const encryptActions = this.dom.formEncrypt.querySelector('.form-actions');
         if (encryptActions) {
-            const destructDiv = document.createElement('div');
-            destructDiv.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);';
-            destructDiv.innerHTML = `
-                <label style="margin:0; cursor:pointer;">
-                    <input type="checkbox" id="chk-destruct"> Self-destruct view in
-                </label>
-                <select id="sel-destruct-time" style="width: auto; padding: 2px;">
-                    <option value="10">10s</option>
-                    <option value="30">30s</option>
-                    <option value="60">60s</option>
-                </select>
-            `;
-            encryptActions.insertAdjacentElement('beforebegin', destructDiv);
+            // ... (existing code logic is fine, we are just appending new methods after injectSecurityControls)
+        }
+    }
 
-            this.dom.inputDestructCheck = document.getElementById('chk-destruct');
-            this.dom.inputDestructTime = document.getElementById('sel-destruct-time');
+    // --- Password Strength ---
+    bindPasswordStrength() {
+        // Encryption password
+        if (this.dom.inputEncPass) {
+            const meter = document.getElementById('enc-pass-meter');
+            const bar = document.getElementById('enc-strength-bar');
+            const label = document.getElementById('enc-strength-text');
+
+            this.dom.inputEncPass.addEventListener('input', (e) => {
+                const pass = e.target.value;
+                this.updateStrengthMeter(pass, meter, bar, label);
+            });
+        }
+
+        // Stego Hide password
+        if (this.dom.inputStegoPass) {
+            const meter = document.getElementById('stego-pass-meter');
+            const bar = document.getElementById('stego-strength-bar');
+            const label = document.getElementById('stego-strength-text');
+
+            this.dom.inputStegoPass.addEventListener('input', (e) => {
+                const pass = e.target.value;
+                this.updateStrengthMeter(pass, meter, bar, label);
+            });
+        }
+    }
+
+    updateStrengthMeter(password, meter, bar, label) {
+        if (!password) {
+            meter.classList.add('hidden');
+            return;
+        }
+        meter.classList.remove('hidden');
+
+        const result = this.calculateStrength(password);
+
+        // Update width
+        bar.style.width = `${(result.score / 4) * 100}%`;
+
+        // Update classes
+        // remove old classes
+        bar.className = 'strength-bar';
+        bar.classList.add(result.class);
+
+        label.className = 'strength-label';
+        label.classList.add(result.class);
+        label.textContent = result.label;
+    }
+
+    calculateStrength(password) {
+        let score = 0;
+        if (!password) return { score: 0, label: 'Empty', class: '' };
+
+        if (password.length > 4) score++;
+        if (password.length > 8) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password)) score++;
+
+        // Bonus for length > 12
+        if (password.length > 12 && score < 4) score++;
+
+        switch (score) {
+            case 0:
+            case 1: return { score: 1, label: 'Weak', class: 'weak' };
+            case 2: return { score: 2, label: 'Medium', class: 'medium' };
+            case 3: return { score: 3, label: 'Strong', class: 'strong' };
+            case 4:
+            default: return { score: 4, label: 'Secure', class: 'secure' };
+        }
+    }
+
+    // --- File Mode ---
+    bindFileMode() {
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+        // Encryption mode toggle
+        if (this.dom.btnTextMode && this.dom.btnFileMode) {
+            this.dom.btnTextMode.addEventListener('click', () => {
+                this.dom.btnTextMode.classList.add('active');
+                this.dom.btnFileMode.classList.remove('active');
+                this.dom.textModeGroup.classList.remove('hidden');
+                this.dom.fileModeGroup.classList.add('hidden');
+                this.dom.inputEncMsg.required = true;
+                if (this.dom.inputEncFile) this.dom.inputEncFile.required = false;
+            });
+
+            this.dom.btnFileMode.addEventListener('click', () => {
+                this.dom.btnFileMode.classList.add('active');
+                this.dom.btnTextMode.classList.remove('active');
+                this.dom.fileModeGroup.classList.remove('hidden');
+                this.dom.textModeGroup.classList.add('hidden');
+                this.dom.inputEncMsg.required = false;
+                if (this.dom.inputEncFile) this.dom.inputEncFile.required = true;
+            });
+        }
+
+        // Decryption mode toggle
+        if (this.dom.btnDecTextMode && this.dom.btnDecFileMode) {
+            this.dom.btnDecTextMode.addEventListener('click', () => {
+                this.dom.btnDecTextMode.classList.add('active');
+                this.dom.btnDecFileMode.classList.remove('active');
+                this.dom.decTextModeGroup.classList.remove('hidden');
+                this.dom.decFileModeGroup.classList.add('hidden');
+            });
+
+            this.dom.btnDecFileMode.addEventListener('click', () => {
+                this.dom.btnDecFileMode.classList.add('active');
+                this.dom.btnDecTextMode.classList.remove('active');
+                this.dom.decFileModeGroup.classList.remove('hidden');
+                this.dom.decTextModeGroup.classList.add('hidden');
+            });
+        }
+
+        // Encryption file upload handler
+        if (this.dom.inputEncFile) {
+            this.dom.inputEncFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    this.dom.filePreview.classList.add('hidden');
+                    return;
+                }
+
+                // Validate file size
+                if (file.size > MAX_FILE_SIZE) {
+                    this.dom.filePreview.innerHTML = `
+                        <p class="file-size-error">⚠️ File too large! Maximum size is 10MB.</p>
+                        <p>Your file: <strong>${(file.size / (1024 * 1024)).toFixed(2)} MB</strong></p>
+                    `;
+                    this.dom.filePreview.classList.remove('hidden');
+                    this.dom.inputEncFile.value = '';
+                    return;
+                }
+
+                // Show file preview
+                this.dom.filePreview.innerHTML = `
+                    <p>📄 <strong>${file.name}</strong></p>
+                    <p>Size: ${(file.size / 1024).toFixed(2)} KB</p>
+                    <p>Type: ${file.type || 'Unknown'}</p>
+                `;
+                this.dom.filePreview.classList.remove('hidden');
+            });
+        }
+
+        // Decryption file upload handler
+        if (this.dom.inputDecFile) {
+            this.dom.inputDecFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    this.dom.decFilePreview.classList.add('hidden');
+                    return;
+                }
+
+                // Show file preview
+                this.dom.decFilePreview.innerHTML = `
+                    <p>📄 <strong>${file.name}</strong></p>
+                    <p>Size: ${(file.size / 1024).toFixed(2)} KB</p>
+                `;
+                this.dom.decFilePreview.classList.remove('hidden');
+            });
+        }
+
+        // Hash mode toggle
+        if (this.dom.btnHashTextMode && this.dom.btnHashFileMode) {
+            this.dom.btnHashTextMode.addEventListener('click', () => {
+                this.dom.btnHashTextMode.classList.add('active');
+                this.dom.btnHashFileMode.classList.remove('active');
+                this.dom.hashTextModeGroup.classList.remove('hidden');
+                this.dom.hashFileModeGroup.classList.add('hidden');
+            });
+
+            this.dom.btnHashFileMode.addEventListener('click', () => {
+                this.dom.btnHashFileMode.classList.add('active');
+                this.dom.btnHashTextMode.classList.remove('active');
+                this.dom.hashFileModeGroup.classList.remove('hidden');
+                this.dom.hashTextModeGroup.classList.add('hidden');
+            });
         }
     }
 
