@@ -1,0 +1,788 @@
+/* 
+   theme: Obscura - Premium Cyber Interface
+   mode: Dark Default, Card-Based UI
+*/
+
+:root {
+    /* Core Palette */
+    --bg-body: #050505;
+    --bg-grad-start: #0a0a0a;
+    --bg-grad-end: #121212;
+
+    /* Card / Surface - Glassy feel */
+    --bg-card: rgba(23, 23, 23, 0.7);
+    --bg-card-hover: rgba(30, 30, 30, 0.8);
+    --bg-input: rgba(0, 0, 0, 0.3);
+
+    /* Text */
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --text-accent: #10b981;
+
+    /* Brand / Accents */
+    --brand-primary: #10b981;
+    /* Emerald */
+    --brand-secondary: #3b82f6;
+    /* Blueish secondary for gradients */
+    --brand-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --brand-glow: 0 0 15px rgba(16, 185, 129, 0.3);
+
+    /* Functional */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-light: rgba(255, 255, 255, 0.15);
+    --danger: #ef4444;
+    --warning: #f59e0b;
+
+    /* Metrics */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2.5rem;
+
+    --font-heading: 'Inter', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* Light Mode Override - Premium Light Theme */
+[data-theme="light"] {
+    --bg-body: #f3f4f6;
+    --bg-grad-start: #ffffff;
+    --bg-grad-end: #e5e7eb;
+
+    /* Card / Surface */
+    --bg-card: rgba(255, 255, 255, 0.7);
+    --bg-card-hover: rgba(255, 255, 255, 0.9);
+    --bg-input: rgba(255, 255, 255, 0.6);
+
+    /* Text - High Contrast */
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #6b7280;
+    --text-accent: #059669;
+
+    /* Brand / Accents */
+    --brand-primary: #059669;
+    /* Slightly darker emerald for light mode visibility */
+    --brand-secondary: #2563eb;
+    --brand-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    /* Keep same vibrant gradient */
+    --brand-glow: 0 0 15px rgba(5, 150, 105, 0.2);
+
+    /* Functional */
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-light: rgba(0, 0, 0, 0.05);
+
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Light Mode Nav Overrides */
+[data-theme="light"] .nav-list {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .nav-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    /* Darken slightly on white */
+}
+
+[data-theme="light"] .stat-value {
+    color: var(--text-primary);
+    /* Dark text for stats in light mode */
+}
+
+/* Theme Toggle Button */
+.theme-btn {
+    position: absolute;
+    top: var(--space-lg);
+    right: 0;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transform: rotate(15deg);
+}
+
+.icon-sun,
+.icon-moon {
+    pointer-events: none;
+}
+
+/* Hide/Show logic based on theme */
+[data-theme="light"] .icon-sun {
+    display: none;
+}
+
+[data-theme="light"] .icon-moon {
+    display: block;
+}
+
+:root:not([data-theme="light"]) .icon-moon {
+    display: none;
+}
+
+:root:not([data-theme="light"]) .icon-sun {
+    display: block;
+}
+
+/* Keep Reset button positioned correctly with new toggle */
+header .container {
+    position: relative;
+}
+
+
+/* --- Base --- */
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-body);
+    background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, transparent 70%);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Light Mode specific body override */
+[data-theme="light"] body {
+    background-image: none;
+}
+
+/* --- Layout --- */
+.container,
+.app-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+}
+
+/* --- Header --- */
+header.app-header {
+    background: transparent;
+    padding: var(--space-xl) 0 var(--space-lg);
+    border-bottom: 1px solid transparent;
+    /* Subtler appearance, let content divide itself */
+    text-align: center;
+}
+
+.logo-wrapper h1 {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    background: linear-gradient(to right, #fff 20%, var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: var(--space-xs);
+}
+
+[data-theme="light"] .logo-wrapper h1 {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #000000;
+}
+
+.logo-wrapper .subtitle {
+    font-size: 1rem;
+    color: var(--brand-primary);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* --- Navigation (Pills style) --- */
+.app-nav {
+    position: sticky;
+    top: 10px;
+    z-index: 50;
+    margin-bottom: var(--space-xl);
+    display: flex;
+    justify-content: center;
+    padding: 0 var(--space-sm);
+}
+
+.nav-list {
+    display: flex;
+    gap: var(--space-sm);
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(12px);
+    padding: var(--space-sm);
+    border-radius: 999px;
+    /* pill shape */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 100%;
+}
+
+.nav-list::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    /* full rounded */
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+}
+
+.nav-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn.active {
+    background: var(--bg-surface);
+    color: var(--brand-primary);
+    border-color: var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Cards / Panels --- */
+.panel {
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.panel.hidden {
+    display: none;
+}
+
+.panel-header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.panel-header h2 {
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.panel-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* The Main Card */
+.security-form {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a subtle top highlight line */
+.security-form::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.security-form:hover {
+    box-shadow: var(--shadow-float);
+    border-color: var(--border-light);
+}
+
+/* --- Inputs --- */
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+}
+
+input[type="text"],
+input[type="password"],
+textarea,
+select,
+input[type="file"] {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.85rem;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+textarea {
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* --- Buttons --- */
+/* --- Buttons --- */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+}
+
+@media (min-width: 640px) {
+    /* No grid needed if we want spacing */
+}
+
+button {
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+    letter-spacing: 0.025em;
+    min-height: 48px;
+}
+
+.btn-primary {
+    background: var(--brand-gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+    padding: 0 2rem;
+    flex: 1;
+    /* Grow to fill space */
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-secondary);
+}
+
+/* --- Clear / Micro Button --- */
+.btn-sm,
+.btn-clear {
+    min-height: auto;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    box-shadow: none;
+    color: var(--text-tertiary);
+    background: transparent;
+    border: 1px solid transparent;
+    font-weight: 500;
+}
+
+.btn-sm:hover,
+.btn-clear:hover {
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.05);
+    /* faint red bg */
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* --- Results / Output --- */
+.output-area {
+    margin-top: var(--space-xl);
+    animation: fadeIn 0.5s ease;
+}
+
+.output-area h3 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.code-display,
+.plaintext-display {
+    background: #000000;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    position: relative;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+pre,
+.plaintext-display p {
+    padding: var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--brand-primary);
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.plaintext-display p {
+    color: var(--text-primary);
+}
+
+.btn-copy {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+}
+
+.btn-copy:hover {
+    background: var(--brand-primary);
+    color: white;
+}
+
+/* --- Small Button --- */
+.btn-sm {
+    min-height: 32px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    box-shadow: none;
+}
+
+/* --- Sub Navigation (Pill Tabs) --- */
+.sub-nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-lg);
+    /* Remove border-bottom from previous style, use pill container */
+    border-bottom: none;
+}
+
+.sub-nav-list {
+    display: flex;
+    gap: 8px;
+    /* tighter gap than main */
+    background: rgba(40, 40, 40, 0.6);
+    /* Slightly darker/lighter distinction? */
+    backdrop-filter: blur(12px);
+    padding: 6px;
+    /* slightly less than main */
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    list-style: none;
+    /* In case ul is used */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Light mode specific for sub-nav pill */
+[data-theme="light"] .sub-nav-list {
+    background: rgba(0, 0, 0, 0.05);
+    /* faint contrast on white */
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.sub-nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.4rem 1.25rem;
+    /* Standard pill padding */
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 999px;
+    /* Pill shape */
+    transition: all 0.2s;
+    border-bottom: none;
+    /* Reset from prev */
+    white-space: nowrap;
+}
+
+.sub-nav-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .sub-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.sub-nav-btn.active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /* For dark mode active */
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+[data-theme="light"] .sub-nav-btn.active {
+    background: white;
+    color: var(--brand-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Stats Grid (Analyzer) --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-md);
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-xs);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    font-family: var(--font-mono);
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-md);
+    opacity: 0;
+    pointer-events: none;
+    /* Initially allow clicks through if invisible, but logic uses display none usually */
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+    /* Ensure display flex is active when not hidden */
+    display: flex;
+}
+
+/* Override utility .hidden for modal to allow transition if we used opacity, 
+   but our JS toggles .hidden which is display:none !important. 
+   So simple way: just use the display toggle. 
+   We'll add animation to the box. 
+*/
+
+.modal-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 450px;
+    overflow: hidden;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay:not(.hidden) .modal-box {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-header {
+    background: rgba(255, 255, 255, 0.03);
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.btn-close-modal:hover {
+    color: var(--danger);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.modal-body {
+    padding: var(--space-lg);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.btn-modal-ok {
+    padding: 0.5rem 1.5rem;
+    min-width: 100px;
+}
+
+/* --- Footer --- */
+.app-footer {
+    border-top: none;
+    margin-top: var(--space-xl);
+    opacity: 0.6;
+}
+
+/* --- Animations --- */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* --- Mobile Tweaks --- */
+@media (max-width: 640px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+
+    .logo-wrapper h1 {
+        font-size: 2rem;
+    }
+
+    .nav-list {
+        background: var(--bg-body);
+        /* remove blur on weak mobiles if needed, maintaing pill for now */
+        border-radius: var(--radius-lg);
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .security-form {
+        padding: var(--space-lg);
+    }
+}
