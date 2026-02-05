@@ -64,6 +64,9 @@ class App {
                     // Add to history
                     this.history.add(encrypted);
                     this.ui.renderHistory(this.history.getAll());
+
+                    // Reset form
+                    this.ui.dom.formEncrypt.reset();
                 }
             } catch (err) {
                 console.error(err);
@@ -97,6 +100,9 @@ class App {
                     this.ui.dom.outputEncFile.classList.remove('error-text');
                     this.ui.dom.areaEncFileOutput.classList.remove('hidden');
                     this.ui.dom.areaEncFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                    // Reset form
+                    this.ui.dom.formEncryptFile.reset();
                 } catch (err) {
                     console.error(err);
                     this.ui.showError('encrypt', err.message);
@@ -155,6 +161,9 @@ class App {
                     this.security.markBurned(cxSignature);
                 }
 
+                // Reset form
+                this.ui.dom.formDecrypt.reset();
+
             } catch (err) {
                 console.error(err);
                 this.ui.showError('decrypt', err.message);
@@ -181,8 +190,18 @@ class App {
                     this.ui.dom.outputDecFile.classList.remove('error-text');
                     this.ui.dom.areaDecFileOutput.classList.remove('hidden');
                     this.ui.dom.areaDecFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                    // Reset form
+                    this.ui.dom.formDecryptFile.reset();
                 } catch (err) {
                     console.error(err);
+
+                    // Show specific error dialog for incorrect password
+                    this.ui.showDialog(
+                        err.message || 'File decryption failed. Please check your password and try again.',
+                        '❌ Decryption Failed'
+                    );
+
                     this.ui.showError('decrypt', err.message);
                 }
             });
@@ -271,6 +290,9 @@ class App {
             try {
                 const hash = await this.crypto.hash(inputForHash, algo);
                 this.ui.showHashResult(hash);
+
+                // Reset form
+                this.ui.dom.formHash.reset();
             } catch (err) {
                 console.error(err);
                 this.ui.showError('hash', 'Hashing failed.');
@@ -298,6 +320,9 @@ class App {
                     this.ui.dom.outputHashFile.classList.remove('error-text');
                     this.ui.dom.areaHashFileOutput.classList.remove('hidden');
                     this.ui.dom.areaHashFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                    // Reset form
+                    this.ui.dom.formHashFile.reset();
                 } catch (err) {
                     console.error(err);
                     this.ui.showError('hash', 'File hashing failed.');

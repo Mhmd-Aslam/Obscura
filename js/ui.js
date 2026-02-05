@@ -513,6 +513,8 @@ export class UIManager {
     updateStrengthMeter(password, meter, bar, label) {
         if (!password) {
             meter.classList.add('hidden');
+            bar.style.width = '0%';
+            label.textContent = '';
             return;
         }
         meter.classList.remove('hidden');
