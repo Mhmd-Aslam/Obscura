@@ -258,7 +258,7 @@ export class UIManager {
     }
 
     bindStegoTabs() {
-        const subTabs = document.querySelectorAll('.sub-nav-btn');
+        const subTabs = document.querySelector('#panel-stego').querySelectorAll('.sub-nav-btn');
         const views = [document.getElementById('stego-view-hide'), document.getElementById('stego-view-reveal')];
 
         subTabs.forEach(btn => {
@@ -579,6 +579,18 @@ export class UIManager {
             });
         }
 
+        // File Encryption password
+        if (this.dom.inputEncFilePass) {
+            const meter = document.getElementById('enc-file-pass-meter');
+            const bar = document.getElementById('enc-file-strength-bar');
+            const label = document.getElementById('enc-file-strength-text');
+
+            this.dom.inputEncFilePass.addEventListener('input', (e) => {
+                const pass = e.target.value;
+                this.updateStrengthMeter(pass, meter, bar, label);
+            });
+        }
+
         // Stego Hide password
         if (this.dom.inputStegoPass) {
             const meter = document.getElementById('stego-pass-meter');
@@ -586,6 +598,19 @@ export class UIManager {
             const label = document.getElementById('stego-strength-text');
 
             this.dom.inputStegoPass.addEventListener('input', (e) => {
+                const pass = e.target.value;
+                this.updateStrengthMeter(pass, meter, bar, label);
+            });
+        }
+
+        // Watermark Add password
+        const watermarkInput = document.getElementById('watermark-password');
+        if (watermarkInput) {
+            const meter = document.getElementById('watermark-pass-meter');
+            const bar = document.getElementById('watermark-strength-bar');
+            const label = document.getElementById('watermark-strength-text');
+
+            watermarkInput.addEventListener('input', (e) => {
                 const pass = e.target.value;
                 this.updateStrengthMeter(pass, meter, bar, label);
             });
@@ -651,6 +676,7 @@ export class UIManager {
                 this.dom.fileModeGroup.classList.add('hidden');
                 this.dom.inputEncMsg.required = true;
                 if (this.dom.inputEncFile) this.dom.inputEncFile.required = false;
+                this.resetAll();
             });
 
             this.dom.btnFileMode.addEventListener('click', () => {
@@ -660,6 +686,7 @@ export class UIManager {
                 this.dom.textModeGroup.classList.add('hidden');
                 this.dom.inputEncMsg.required = false;
                 if (this.dom.inputEncFile) this.dom.inputEncFile.required = true;
+                this.resetAll();
             });
         }
 
@@ -670,6 +697,7 @@ export class UIManager {
                 this.dom.btnDecFileMode.classList.remove('active');
                 this.dom.decTextModeGroup.classList.remove('hidden');
                 this.dom.decFileModeGroup.classList.add('hidden');
+                this.resetAll();
             });
 
             this.dom.btnDecFileMode.addEventListener('click', () => {
@@ -677,6 +705,7 @@ export class UIManager {
                 this.dom.btnDecTextMode.classList.remove('active');
                 this.dom.decFileModeGroup.classList.remove('hidden');
                 this.dom.decTextModeGroup.classList.add('hidden');
+                this.resetAll();
             });
         }
 
@@ -691,11 +720,11 @@ export class UIManager {
 
                 // Validate file size
                 if (file.size > MAX_FILE_SIZE) {
-                    this.dom.filePreview.innerHTML = `
-                        <p class="file-size-error">⚠️ File too large! Maximum size is 10MB.</p>
-                        <p>Your file: <strong>${(file.size / (1024 * 1024)).toFixed(2)} MB</strong></p>
-                    `;
-                    this.dom.filePreview.classList.remove('hidden');
+                    this.showDialog(
+                        `⚠️ File too large! Maximum size is 10MB.\n\nYour file: ${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+                        'File Size Error'
+                    );
+                    this.dom.filePreview.classList.add('hidden');
                     this.dom.inputEncFile.value = '';
                     return;
                 }
@@ -735,6 +764,7 @@ export class UIManager {
                 this.dom.btnHashFileMode.classList.remove('active');
                 this.dom.hashTextModeGroup.classList.remove('hidden');
                 this.dom.hashFileModeGroup.classList.add('hidden');
+                this.resetAll();
             });
 
             this.dom.btnHashFileMode.addEventListener('click', () => {
@@ -742,6 +772,7 @@ export class UIManager {
                 this.dom.btnHashTextMode.classList.remove('active');
                 this.dom.hashFileModeGroup.classList.remove('hidden');
                 this.dom.hashTextModeGroup.classList.add('hidden');
+                this.resetAll();
             });
         }
     }

@@ -82,8 +82,8 @@
         <!-- SEC 1: Encryption -->
         <section id="panel-encrypt" class="panel active" role="tabpanel" aria-labelledby="tab-encrypt">
             <header class="panel-header">
-                <h2>Message Encryption</h2>
-                <p>Secure your text using AES-GCM 256-bit encryption.</p>
+                <h2 id="enc-header-title">Message Encryption</h2>
+                <p id="enc-header-desc">Secure your text using AES-GCM 256-bit encryption.</p>
             </header>
 
             <!-- Sub Nav -->
@@ -104,9 +104,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="enc-pass">Passphrase</label>
+                        <label for="enc-pass">Password</label>
                         <input type="password" id="enc-pass" name="password" required
-                            placeholder="Enter a strong passphrase" autocomplete="off">
+                            placeholder="Enter a strong password" autocomplete="off">
                         <!-- Strength Meter -->
                         <div class="strength-meter hidden" id="enc-pass-meter">
                             <div class="strength-bar-container">
@@ -141,9 +141,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="enc-file-pass">Passphrase</label>
+                        <label for="enc-file-pass">Password</label>
                         <input type="password" id="enc-file-pass" name="password" required
-                            placeholder="Enter a strong passphrase" autocomplete="off">
+                            placeholder="Enter a strong password" autocomplete="off">
                         <!-- Strength Meter -->
                         <div class="strength-meter hidden" id="enc-file-pass-meter">
                             <div class="strength-bar-container">
@@ -193,9 +193,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="dec-pass">Passphrase</label>
+                        <label for="dec-pass">Password</label>
                         <input type="password" id="dec-pass" name="password" required
-                            placeholder="Enter the original passphrase" autocomplete="off">
+                            placeholder="Enter the original password" autocomplete="off">
                     </div>
 
                     <div class="form-actions">
@@ -223,9 +223,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="dec-file-pass">Passphrase</label>
+                        <label for="dec-file-pass">Password</label>
                         <input type="password" id="dec-file-pass" name="password" required
-                            placeholder="Enter the original passphrase" autocomplete="off">
+                            placeholder="Enter the original password" autocomplete="off">
                     </div>
 
                     <div class="form-actions">
@@ -446,6 +446,13 @@
                             <label for="watermark-password">Password (Optional)</label>
                             <input type="password" id="watermark-password" name="password"
                                 placeholder="Encrypt watermark with password">
+                            <!-- Strength Meter -->
+                            <div class="strength-meter hidden" id="watermark-pass-meter">
+                                <div class="strength-bar-container">
+                                    <div class="strength-bar" id="watermark-strength-bar"></div>
+                                </div>
+                                <div class="strength-label" id="watermark-strength-text"></div>
+                            </div>
                         </div>
                     </div>
 
