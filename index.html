@@ -338,8 +338,8 @@
         <!-- SEC 3.5: Watermarking -->
         <section id="panel-watermark" class="panel hidden" role="tabpanel" aria-labelledby="tab-watermark">
             <header class="panel-header">
-                <h2>Image Watermarking</h2>
-                <p>Add visible or invisible watermarks to protect your images.</p>
+                <h2>Watermarking</h2>
+                <p>Add visible or invisible watermarks to protect your images and documents.</p>
             </header>
 
             <!-- Sub Nav -->
@@ -455,7 +455,7 @@
                     </div>
 
                     <div id="watermark-result-area" class="output-area hidden">
-                        <h3>Watermarked Image</h3>
+                        <h3 id="watermark-result-header">Watermarked Image</h3>
                         <p class="success-msg">✅ Watermark applied successfully.</p>
                         <div class="form-actions">
                             <button type="button" id="btn-watermark-save" class="btn-primary">⬇️ Download Image</button>
@@ -721,6 +721,7 @@
                 <p id="modal-message"></p>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn-secondary btn-modal-cancel hidden">Cancel</button>
                 <button type="button" class="btn-primary btn-modal-ok">OK</button>
             </div>
         </div>

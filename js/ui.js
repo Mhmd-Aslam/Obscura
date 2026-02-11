@@ -97,7 +97,8 @@ export class UIManager {
             modalTitle: document.getElementById('modal-title'),
             modalMessage: document.getElementById('modal-message'),
             modalCloseBtn: document.querySelector('.btn-close-modal'),
-            modalOkBtn: document.querySelector('.btn-modal-ok')
+            modalOkBtn: document.querySelector('.btn-modal-ok'),
+            modalCancelBtn: document.querySelector('.btn-modal-cancel')
         };
 
         this.bindNav();
@@ -160,6 +161,7 @@ export class UIManager {
 
         if (this.dom.modalCloseBtn) this.dom.modalCloseBtn.addEventListener('click', hideModal);
         if (this.dom.modalOkBtn) this.dom.modalOkBtn.addEventListener('click', hideModal);
+        if (this.dom.modalCancelBtn) this.dom.modalCancelBtn.addEventListener('click', hideModal);
 
         // Close on clicking outside
         if (this.dom.modal) {
@@ -181,6 +183,9 @@ export class UIManager {
         this.dom.modalTitle.textContent = title;
         this.dom.modalMessage.textContent = message;
 
+        // Hide cancel button for regular alert
+        if (this.dom.modalCancelBtn) this.dom.modalCancelBtn.classList.add('hidden');
+
         this.dom.modal.classList.remove('hidden');
         this.dom.modal.setAttribute('aria-hidden', 'false');
 
@@ -188,16 +193,48 @@ export class UIManager {
         this.dom.modalOkBtn.focus();
     }
 
-    // Update showError to use dialog
-    showError(section, msg) {
-        if (section === 'encrypt') {
-            this.showDialog(msg, 'Encryption Error');
-        } else {
-            this.dom.outputDec.textContent = `Error: ${msg}`;
-            this.dom.outputDec.classList.add('error-text');
-            this.dom.areaDecOutput.classList.remove('hidden');
-        }
+    /**
+     * Show confirmation dialog (Returns Promise<boolean>)
+     */
+    showConfirm(message, title = 'Confirmation') {
+        return new Promise((resolve) => {
+            if (!this.dom.modal) {
+                resolve(confirm(message));
+                return;
+            }
+
+            this.dom.modalTitle.textContent = title;
+            this.dom.modalMessage.textContent = message;
+
+            // Show cancel button
+            if (this.dom.modalCancelBtn) {
+                this.dom.modalCancelBtn.classList.remove('hidden');
+            }
+
+            // Temporarily override listeners to resolve promise
+            const cleanup = (result) => {
+                this.dom.modalOkBtn.removeEventListener('click', onOk);
+                if (this.dom.modalCancelBtn) this.dom.modalCancelBtn.removeEventListener('click', onCancel);
+                if (this.dom.modalCloseBtn) this.dom.modalCloseBtn.removeEventListener('click', onCancel);
+
+                this.dom.modal.classList.add('hidden');
+                this.dom.modal.setAttribute('aria-hidden', 'true');
+                resolve(result);
+            };
+
+            const onOk = () => cleanup(true);
+            const onCancel = () => cleanup(false);
+
+            this.dom.modalOkBtn.addEventListener('click', onOk);
+            if (this.dom.modalCancelBtn) this.dom.modalCancelBtn.addEventListener('click', onCancel);
+            if (this.dom.modalCloseBtn) this.dom.modalCloseBtn.addEventListener('click', onCancel);
+
+            this.dom.modal.classList.remove('hidden');
+            this.dom.modal.setAttribute('aria-hidden', 'false');
+            this.dom.modalOkBtn.focus();
+        });
     }
+
 
     bindNav() {
         this.dom.navButtons.forEach(btn => {
@@ -213,6 +250,9 @@ export class UIManager {
 
                 const targetId = btn.getAttribute('aria-controls');
                 document.getElementById(targetId).classList.remove('hidden');
+
+                // Auto-reset when changing main tabs
+                this.resetAll();
             });
         });
     }
@@ -236,6 +276,9 @@ export class UIManager {
 
                 const targetId = btn.getAttribute('aria-controls');
                 document.getElementById(targetId).classList.remove('hidden');
+
+                // Auto-reset when changing stego sub-tabs
+                this.resetAll();
             });
         });
     }
@@ -258,6 +301,9 @@ export class UIManager {
             // Show/hide views
             addView.classList.remove('hidden');
             extractView.classList.add('hidden');
+
+            // Auto-reset when changing watermark sub-tabs
+            this.resetAll();
         });
 
         watermarkExtractBtn.addEventListener('click', () => {
@@ -270,6 +316,42 @@ export class UIManager {
             // Show/hide views
             extractView.classList.remove('hidden');
             addView.classList.add('hidden');
+
+            // Auto-reset when changing watermark sub-tabs
+            this.resetAll();
+        });
+    }
+
+    /**
+     * Resets all forms and hides all result areas
+     */
+    resetAll() {
+        // Reset all forms
+        document.querySelectorAll('form').forEach(form => form.reset());
+
+        // Hide all output/result areas
+        document.querySelectorAll('.output-area, .result-area, .output-area-stego, .watermark-result-area, #analyze-results').forEach(area => {
+            area.classList.add('hidden');
+        });
+
+        // Clear and hide file previews
+        document.querySelectorAll('.file-preview, .preview-container, .preview-area').forEach(preview => {
+            preview.innerHTML = '';
+            preview.classList.add('hidden');
+        });
+
+        // Hide special image results
+        const stegoImg = document.getElementById('stego-output');
+        if (stegoImg) stegoImg.classList.add('hidden');
+
+        const watermarkImg = document.getElementById('watermark-output');
+        if (watermarkImg) watermarkImg.classList.add('hidden');
+
+        // Clear strength meters
+        document.querySelectorAll('.strength-meter').forEach(meter => {
+            meter.classList.add('hidden');
+            const bar = meter.querySelector('.strength-bar');
+            if (bar) bar.style.width = '0%';
         });
     }
 
@@ -440,51 +522,17 @@ export class UIManager {
     }
 
     showError(section, msg) {
-        let outputElement, areaElement;
+        const titles = {
+            'encrypt': 'Encryption Error',
+            'decrypt': 'Decryption Error',
+            'hash': 'Hashing Error',
+            'stego-reveal': 'Extraction Error',
+            'stego-hide': 'Steganography Error',
+            'watermark': 'Watermarking Error'
+        };
 
-        switch (section) {
-            case 'encrypt':
-                outputElement = this.dom.outputEnc;
-                areaElement = this.dom.areaEncOutput;
-                break;
-            case 'decrypt':
-                outputElement = this.dom.outputDec;
-                areaElement = this.dom.areaDecOutput;
-                break;
-            case 'hash':
-                outputElement = this.dom.outputHash;
-                areaElement = this.dom.areaHashOutput;
-                break;
-            case 'stego-reveal':
-                outputElement = this.dom.outputStegoReveal;
-                areaElement = this.dom.areaStegoRevealOutput;
-                break;
-            case 'stego-hide':
-                // Special handling for Hide structure
-                areaElement = this.dom.areaStegoResult;
-                const statusMsg = areaElement.querySelector('.success-msg');
-                if (statusMsg) {
-                    statusMsg.textContent = `❌ Error: ${msg}`;
-                    statusMsg.classList.add('error-text');
-                    outputElement = statusMsg;
-                }
-
-                // Hide success elements
-                this.dom.imgStegoOutput.classList.add('hidden');
-                const saveBtn = areaElement.querySelector('#btn-stego-save');
-                if (saveBtn) saveBtn.parentElement.classList.add('hidden');
-                break;
-        }
-
-        if (outputElement && section !== 'stego-hide') {
-            outputElement.textContent = `Error: ${msg}`;
-            outputElement.classList.add('error-text');
-        }
-
-        if (areaElement) {
-            areaElement.classList.remove('hidden');
-            areaElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        const title = titles[section] || 'Error';
+        this.showDialog(msg, `❌ ${title}`);
     }
 
     injectSecurityControls() {

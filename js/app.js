@@ -197,13 +197,6 @@ class App {
                     this.ui.dom.formDecryptFile.reset();
                 } catch (err) {
                     console.error(err);
-
-                    // Show specific error dialog for incorrect password
-                    this.ui.showDialog(
-                        err.message || 'File decryption failed. Please check your password and try again.',
-                        '❌ Decryption Failed'
-                    );
-
                     this.ui.showError('decrypt', err.message);
                 }
             });
@@ -363,7 +356,28 @@ class App {
 
                 const isPDF = file.type === 'application/pdf';
 
+                // Add loading state
+                const btnApply = document.getElementById('btn-watermark-apply');
+                const originalBtnText = btnApply?.innerText || 'Apply Watermark';
+
+                if (btnApply) {
+                    btnApply.disabled = true;
+                    btnApply.innerText = '⌛ Processing...';
+                }
+
                 try {
+                    // Size check (> 25MB)
+                    if (file.size > 25 * 1024 * 1024) {
+                        const proceed = await this.ui.showConfirm('This file is very large (>25MB). Processing may be slow or cause browser memory issues. Continue?', 'Large File Warning');
+                        if (!proceed) {
+                            if (btnApply) {
+                                btnApply.disabled = false;
+                                btnApply.innerText = originalBtnText;
+                            }
+                            return;
+                        }
+                    }
+
                     let result;
 
                     if (type === 'visible') {
@@ -396,14 +410,16 @@ class App {
                                 fontSize,
                                 rotation: position === 'diagonal' ? -45 : 0
                             };
-                            result = await this.watermark.addVisibleWatermark(file, text, options);
+                            const blob = await this.watermark.addVisibleWatermark(file, text, options);
+                            result = URL.createObjectURL(blob);
                         }
                     } else if (type === 'invisible') {
                         if (isPDF) {
                             throw new Error('Invisible watermarking is only supported for images.');
                         }
                         const password = document.getElementById('watermark-password')?.value || null;
-                        result = await this.watermark.addInvisibleWatermark(file, text, password);
+                        const blob = await this.watermark.addInvisibleWatermark(file, text, password);
+                        result = URL.createObjectURL(blob);
                     } else if (type === 'pattern') {
                         const opacity = parseInt(document.getElementById('watermark-opacity')?.value || 30) / 100;
                         const colorInput = document.getElementById('watermark-color')?.value || '#808080';
@@ -432,18 +448,23 @@ class App {
                             result = URL.createObjectURL(blob);
                         } else {
                             const options = { opacity: opacity * 0.5, color: colorInput, fontSize, rotation: imgRotation, spacing: 200 };
-                            result = await this.watermark.addPatternWatermark(file, text, options);
+                            const blob = await this.watermark.addPatternWatermark(file, text, options);
+                            result = URL.createObjectURL(blob);
                         }
                     }
 
                     // Display result
                     const outputImg = document.getElementById('watermark-output');
                     const resultArea = document.getElementById('watermark-result-area');
+                    const resultHeader = document.getElementById('watermark-result-header');
                     const btnSave = document.getElementById('btn-watermark-save');
 
                     if (resultArea && btnSave) {
                         if (isPDF) {
                             if (outputImg) outputImg.classList.add('hidden');
+                            if (resultHeader) resultHeader.innerText = 'Watermarked PDF';
+                            if (btnSave) btnSave.innerText = '⬇️ Download PDF';
+
                             // Store the URL on the button for saving
                             btnSave.dataset.url = result;
                             btnSave.dataset.type = 'pdf';
@@ -452,6 +473,9 @@ class App {
                                 outputImg.src = result;
                                 outputImg.classList.remove('hidden');
                             }
+                            if (resultHeader) resultHeader.innerText = 'Watermarked Image';
+                            if (btnSave) btnSave.innerText = '⬇️ Download Image';
+
                             btnSave.dataset.url = result;
                             btnSave.dataset.type = 'image';
                         }
@@ -460,7 +484,10 @@ class App {
                     }
                 } catch (err) {
                     console.error(err);
-                    this.ui.showDialog(err.message || 'Watermark application failed', '❌ Error');
+                    this.ui.showError('watermark', err.message);
+                } finally {
+                    btnApply.disabled = false;
+                    btnApply.innerText = originalBtnText;
                 }
             });
         }
@@ -527,7 +554,7 @@ class App {
                     }
                 } catch (err) {
                     console.error(err);
-                    this.ui.showDialog(err.message || 'Failed to extract watermark', '❌ Extraction Failed');
+                    this.ui.showError('watermark', err.message);
                 }
             });
         }

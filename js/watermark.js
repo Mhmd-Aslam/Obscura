@@ -114,7 +114,9 @@ export class WatermarkEngine {
                 }
 
                 URL.revokeObjectURL(url);
-                resolve(canvas.toDataURL('image/png'));
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/png');
             };
 
             img.onerror = () => {
@@ -178,7 +180,7 @@ export class WatermarkEngine {
             }
         }
 
-        return this.imageDataToUrl(imageData);
+        return this.imageDataToBlobUrl(imageData);
     }
 
     /**
@@ -334,7 +336,9 @@ export class WatermarkEngine {
                 ctx.restore();
 
                 URL.revokeObjectURL(url);
-                resolve(canvas.toDataURL('image/png'));
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/png');
             };
 
             img.onerror = () => {
@@ -539,13 +543,22 @@ export class WatermarkEngine {
         });
     }
 
-    imageDataToUrl(imageData) {
-        const canvas = document.createElement('canvas');
-        canvas.width = imageData.width;
-        canvas.height = imageData.height;
-        const ctx = canvas.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
-        return canvas.toDataURL('image/png');
+    /**
+     * Convert ImageData to Blob
+     * @param {ImageData} imageData 
+     * @returns {Promise<Blob>}
+     */
+    imageDataToBlobUrl(imageData) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = imageData.width;
+            canvas.height = imageData.height;
+            const ctx = canvas.getContext('2d');
+            ctx.putImageData(imageData, 0, 0);
+            canvas.toBlob((blob) => {
+                resolve(blob);
+            }, 'image/png');
+        });
     }
 
     stringToBinary(str) {
