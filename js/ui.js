@@ -102,6 +102,7 @@ export class UIManager {
 
         this.bindNav();
         this.bindStegoTabs(); // NEW
+        this.bindWatermarkTabs(); // NEW - for watermarking sub-tabs
         this.bindCopy();
         this.bindClearButtons();
         this.injectHistoryUI();
@@ -236,6 +237,39 @@ export class UIManager {
                 const targetId = btn.getAttribute('aria-controls');
                 document.getElementById(targetId).classList.remove('hidden');
             });
+        });
+    }
+
+    bindWatermarkTabs() {
+        const watermarkAddBtn = document.getElementById('subtab-watermark-add');
+        const watermarkExtractBtn = document.getElementById('subtab-watermark-extract');
+        const addView = document.getElementById('watermark-view-add');
+        const extractView = document.getElementById('watermark-view-extract');
+
+        if (!watermarkAddBtn || !watermarkExtractBtn || !addView || !extractView) return;
+
+        watermarkAddBtn.addEventListener('click', () => {
+            // Activate add tab
+            watermarkAddBtn.classList.add('active');
+            watermarkExtractBtn.classList.remove('active');
+            watermarkAddBtn.setAttribute('aria-selected', 'true');
+            watermarkExtractBtn.setAttribute('aria-selected', 'false');
+
+            // Show/hide views
+            addView.classList.remove('hidden');
+            extractView.classList.add('hidden');
+        });
+
+        watermarkExtractBtn.addEventListener('click', () => {
+            // Activate extract tab
+            watermarkExtractBtn.classList.add('active');
+            watermarkAddBtn.classList.remove('active');
+            watermarkExtractBtn.setAttribute('aria-selected', 'true');
+            watermarkAddBtn.setAttribute('aria-selected', 'false');
+
+            // Show/hide views
+            extractView.classList.remove('hidden');
+            addView.classList.add('hidden');
         });
     }
 

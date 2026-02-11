@@ -65,6 +65,10 @@
                         aria-controls="panel-stego">Steganography</button>
                 </li>
                 <li role="presentation">
+                    <button id="tab-watermark" class="nav-btn" role="tab" aria-selected="false"
+                        aria-controls="panel-watermark">Watermarking</button>
+                </li>
+                <li role="presentation">
                     <button id="tab-hash" class="nav-btn" role="tab" aria-selected="false"
                         aria-controls="panel-hash">Hashing</button>
                 </li>
@@ -329,6 +333,177 @@
             </div>
 
             <canvas id="stego-canvas" class="hidden"></canvas>
+        </section>
+
+        <!-- SEC 3.5: Watermarking -->
+        <section id="panel-watermark" class="panel hidden" role="tabpanel" aria-labelledby="tab-watermark">
+            <header class="panel-header">
+                <h2>Image Watermarking</h2>
+                <p>Add visible or invisible watermarks to protect your images.</p>
+            </header>
+
+            <!-- Sub Nav -->
+            <div class="sub-nav" role="tablist">
+                <div class="sub-nav-list">
+                    <button id="subtab-watermark-add" class="sub-nav-btn active" role="tab" aria-selected="true"
+                        aria-controls="watermark-view-add">Add Watermark</button>
+                    <button id="subtab-watermark-extract" class="sub-nav-btn" role="tab" aria-selected="false"
+                        aria-controls="watermark-view-extract">Extract Watermark</button>
+                </div>
+            </div>
+
+            <!-- Add Watermark Panel -->
+            <div id="watermark-view-add" role="tabpanel">
+                <form id="form-watermark-add" class="security-form" onsubmit="return false;">
+                    <!-- File Upload -->
+                    <div class="form-group">
+                        <label for="watermark-image">Source File (Image or PDF)</label>
+                        <input type="file" id="watermark-image" name="image"
+                            accept="image/png, image/jpeg, application/pdf">
+                    </div>
+
+                    <!-- Watermark Type -->
+                    <div class="form-group">
+                        <label>Watermark Type</label>
+                        <p class="disclaimer" style="margin-bottom: 10px;">Note: Invisible watermarking is only
+                            available for images.</p>
+                        <div class="algo-grid">
+                            <label class="algo-card">
+                                <input type="radio" name="watermark-type" value="visible" checked>
+                                <span class="algo-content">
+                                    <span class="algo-name">Visible</span>
+                                    <span class="algo-tag">Text Overlay</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="watermark-type" value="invisible">
+                                <span class="algo-content">
+                                    <span class="algo-name">Invisible</span>
+                                    <span class="algo-tag">Hidden Data</span>
+                                </span>
+                            </label>
+
+                            <label class="algo-card">
+                                <input type="radio" name="watermark-type" value="pattern">
+                                <span class="algo-content">
+                                    <span class="algo-name">Pattern</span>
+                                    <span class="algo-tag">Repeating</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Watermark Text -->
+                    <div class="form-group">
+                        <label for="watermark-text">Watermark Text</label>
+                        <input type="text" id="watermark-text" name="text" required
+                            placeholder="Enter watermark text (e.g., © 2026 Your Name)">
+                    </div>
+
+                    <!-- Visible Options -->
+                    <div id="visible-options">
+                        <div class="form-group">
+                            <label for="watermark-position">Position</label>
+                            <select id="watermark-position" name="position">
+                                <option value="diagonal" selected>Diagonal Center</option>
+                                <option value="center">Center</option>
+                                <option value="top-left">Top Left</option>
+                                <option value="top-right">Top Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-right">Bottom Right</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group hidden" id="orientation-group">
+                            <label for="watermark-orientation">Orientation</label>
+                            <select id="watermark-orientation" name="orientation">
+                                <option value="diagonal" selected>Diagonal</option>
+                                <option value="horizontal">Horizontal</option>
+                                <option value="vertical">Vertical</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="watermark-opacity">Opacity: <span id="opacity-value">30%</span></label>
+                            <input type="range" id="watermark-opacity" min="0" max="100" value="30">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="watermark-color">Color</label>
+                            <input type="color" id="watermark-color" value="#808080">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="watermark-size">Font Size: <span id="size-value">72px</span></label>
+                            <input type="range" id="watermark-size" min="12" max="120" value="72">
+                        </div>
+                    </div>
+
+                    <!-- Invisible Options -->
+                    <div id="invisible-options" class="hidden">
+                        <div class="form-group">
+                            <label for="watermark-password">Password (Optional)</label>
+                            <input type="password" id="watermark-password" name="password"
+                                placeholder="Encrypt watermark with password">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="btn-watermark-apply" class="btn-primary">Apply Watermark</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="watermark-result-area" class="output-area hidden">
+                        <h3>Watermarked Image</h3>
+                        <p class="success-msg">✅ Watermark applied successfully.</p>
+                        <div class="form-actions">
+                            <button type="button" id="btn-watermark-save" class="btn-primary">⬇️ Download Image</button>
+                        </div>
+                        <img id="watermark-output" class="hidden" alt="Watermarked Image">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Extract Watermark Panel -->
+            <div id="watermark-view-extract" role="tabpanel" class="hidden">
+                <form id="form-watermark-extract" class="security-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="watermark-extract-image">Watermarked Image</label>
+                        <input type="file" id="watermark-extract-image" name="image" accept="image/png, image/jpeg">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="watermark-extract-password">Password (if encrypted)</label>
+                        <input type="password" id="watermark-extract-password" name="password"
+                            placeholder="Enter password if watermark was encrypted">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="btn-watermark-extract" class="btn-primary">Extract Watermark</button>
+                        <button type="reset" class="btn-secondary btn-sm">Clear</button>
+                    </div>
+
+                    <div id="watermark-extract-output-area" class="output-area hidden" aria-live="polite">
+                        <h3>Extracted Watermark</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-label">Watermark</span>
+                                <span class="stat-value" id="extracted-watermark">-</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label">Timestamp</span>
+                                <span class="stat-value" id="extracted-timestamp">-</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label">Version</span>
+                                <span class="stat-value" id="extracted-version">-</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-copy" aria-label="Copy watermark">Copy</button>
+                    </div>
+                </form>
+            </div>
         </section>
 
         <!-- SEC 4: Hashing -->

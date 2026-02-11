@@ -1,5 +1,6 @@
 import { CryptoEngine } from './crypto.js';
 import { StegoEngine } from './stego.js';
+import { WatermarkEngine } from './watermark.js';
 import { MessageAnalyzer } from './analyzer.js';
 import { HistoryManager } from './history.js';
 import { SecurityManager } from './security.js';
@@ -9,6 +10,7 @@ class App {
     constructor() {
         this.crypto = new CryptoEngine();
         this.stego = new StegoEngine(this.crypto);
+        this.watermark = new WatermarkEngine(this.crypto);
         this.analyzer = new MessageAnalyzer();
         this.history = new HistoryManager();
         this.ui = new UIManager();
@@ -341,6 +343,237 @@ class App {
             const stats = this.analyzer.analyze(text);
             this.ui.showAnalysisResult(stats);
         });
+
+        // Watermarking: Apply Watermark
+        const btnWatermarkApply = document.getElementById('btn-watermark-apply');
+        if (btnWatermarkApply) {
+            btnWatermarkApply.addEventListener('click', async () => {
+                const watermarkImage = document.getElementById('watermark-image');
+                const watermarkText = document.getElementById('watermark-text');
+                const watermarkType = document.querySelector('input[name="watermark-type"]:checked');
+
+                const file = watermarkImage?.files[0];
+                const text = watermarkText?.value;
+                const type = watermarkType?.value || 'visible';
+
+                if (!file || !text) {
+                    this.ui.showDialog('Please select a file and enter watermark text.', 'Input Missing');
+                    return;
+                }
+
+                const isPDF = file.type === 'application/pdf';
+
+                try {
+                    let result;
+
+                    if (type === 'visible') {
+                        // Get visible watermark options
+                        const position = document.getElementById('watermark-position')?.value || 'diagonal';
+                        const opacity = parseInt(document.getElementById('watermark-opacity')?.value || 30) / 100;
+                        const colorInput = document.getElementById('watermark-color')?.value || '#808080';
+                        const fontSize = parseInt(document.getElementById('watermark-size')?.value || 72);
+
+                        if (isPDF) {
+                            // Convert HEX to RGB (0-1) for pdf-lib
+                            const r = parseInt(colorInput.slice(1, 3), 16) / 255;
+                            const g = parseInt(colorInput.slice(3, 5), 16) / 255;
+                            const b = parseInt(colorInput.slice(5, 7), 16) / 255;
+
+                            const pdfOptions = {
+                                position: position === 'diagonal' ? 'center' : position,
+                                opacity,
+                                color: { r, g, b },
+                                fontSize,
+                                rotation: position === 'diagonal' ? 45 : 0
+                            };
+                            const blob = await this.watermark.addPDFWatermark(file, text, pdfOptions);
+                            result = URL.createObjectURL(blob);
+                        } else {
+                            const options = {
+                                position,
+                                opacity,
+                                color: colorInput,
+                                fontSize,
+                                rotation: position === 'diagonal' ? -45 : 0
+                            };
+                            result = await this.watermark.addVisibleWatermark(file, text, options);
+                        }
+                    } else if (type === 'invisible') {
+                        if (isPDF) {
+                            throw new Error('Invisible watermarking is only supported for images.');
+                        }
+                        const password = document.getElementById('watermark-password')?.value || null;
+                        result = await this.watermark.addInvisibleWatermark(file, text, password);
+                    } else if (type === 'pattern') {
+                        const opacity = parseInt(document.getElementById('watermark-opacity')?.value || 30) / 100;
+                        const colorInput = document.getElementById('watermark-color')?.value || '#808080';
+                        const fontSize = parseInt(document.getElementById('watermark-size')?.value || 72);
+                        const orientation = document.getElementById('watermark-orientation')?.value || 'diagonal';
+
+                        // Map orientation to rotation
+                        let imgRotation = -45;
+                        let pdfRotation = 45;
+
+                        if (orientation === 'horizontal') {
+                            imgRotation = 0;
+                            pdfRotation = 0;
+                        } else if (orientation === 'vertical') {
+                            imgRotation = -90;
+                            pdfRotation = 90;
+                        }
+
+                        if (isPDF) {
+                            const r = parseInt(colorInput.slice(1, 3), 16) / 255;
+                            const g = parseInt(colorInput.slice(3, 5), 16) / 255;
+                            const b = parseInt(colorInput.slice(5, 7), 16) / 255;
+
+                            const options = { opacity: opacity * 0.5, color: { r, g, b }, fontSize, rotation: pdfRotation, spacing: 200 };
+                            const blob = await this.watermark.addPDFPatternWatermark(file, text, options);
+                            result = URL.createObjectURL(blob);
+                        } else {
+                            const options = { opacity: opacity * 0.5, color: colorInput, fontSize, rotation: imgRotation, spacing: 200 };
+                            result = await this.watermark.addPatternWatermark(file, text, options);
+                        }
+                    }
+
+                    // Display result
+                    const outputImg = document.getElementById('watermark-output');
+                    const resultArea = document.getElementById('watermark-result-area');
+                    const btnSave = document.getElementById('btn-watermark-save');
+
+                    if (resultArea && btnSave) {
+                        if (isPDF) {
+                            if (outputImg) outputImg.classList.add('hidden');
+                            // Store the URL on the button for saving
+                            btnSave.dataset.url = result;
+                            btnSave.dataset.type = 'pdf';
+                        } else {
+                            if (outputImg) {
+                                outputImg.src = result;
+                                outputImg.classList.remove('hidden');
+                            }
+                            btnSave.dataset.url = result;
+                            btnSave.dataset.type = 'image';
+                        }
+                        resultArea.classList.remove('hidden');
+                        resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    this.ui.showDialog(err.message || 'Watermark application failed', '❌ Error');
+                }
+            });
+        }
+
+        // Watermarking: Save/Download
+        const btnWatermarkSave = document.getElementById('btn-watermark-save');
+        if (btnWatermarkSave) {
+            btnWatermarkSave.addEventListener('click', (e) => {
+                const url = e.target.dataset.url;
+                const type = e.target.dataset.type;
+
+                if (url) {
+                    const link = document.createElement('a');
+                    link.download = type === 'pdf' ? 'watermarked_document.pdf' : 'watermarked_image.png';
+                    link.href = url;
+                    link.click();
+                }
+            });
+        }
+
+        // Watermarking: Extract Watermark
+        const btnWatermarkExtract = document.getElementById('btn-watermark-extract');
+        if (btnWatermarkExtract) {
+            btnWatermarkExtract.addEventListener('click', async () => {
+                const extractImage = document.getElementById('watermark-extract-image');
+                const extractPassword = document.getElementById('watermark-extract-password');
+
+                const file = extractImage?.files[0];
+                const password = extractPassword?.value || null;
+
+                if (!file) {
+                    this.ui.showDialog('Please select a watermarked image.', 'Input Missing');
+                    return;
+                }
+
+                try {
+                    let result;
+                    try {
+                        result = await this.watermark.extractInvisibleWatermark(file, password);
+                    } catch (err) {
+                        // If it's a password protection error, show information dialogue
+                        if (err.message.includes('password protected')) {
+                            this.ui.showDialog('Watermark is protected. Please enter the password to extract.', '🔐 Password Required');
+                            return;
+                        } else {
+                            // Re-throw other errors
+                            throw err;
+                        }
+                    }
+
+                    // Display extracted data
+                    const watermarkEl = document.getElementById('extracted-watermark');
+                    const timestampEl = document.getElementById('extracted-timestamp');
+                    const versionEl = document.getElementById('extracted-version');
+                    const outputArea = document.getElementById('watermark-extract-output-area');
+
+                    if (watermarkEl && timestampEl && versionEl && outputArea) {
+                        watermarkEl.textContent = result.watermark;
+                        timestampEl.textContent = result.timestampReadable;
+                        versionEl.textContent = result.version;
+
+                        outputArea.classList.remove('hidden');
+                        outputArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    this.ui.showDialog(err.message || 'Failed to extract watermark', '❌ Extraction Failed');
+                }
+            });
+        }
+
+        // Watermarking: Toggle options based on type
+        const watermarkTypeRadios = document.querySelectorAll('input[name="watermark-type"]');
+        watermarkTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const visibleOptions = document.getElementById('visible-options');
+                const invisibleOptions = document.getElementById('invisible-options');
+                const orientationGroup = document.getElementById('orientation-group');
+                const positionGroup = document.getElementById('watermark-position')?.closest('.form-group');
+
+                if (e.target.value === 'visible') {
+                    visibleOptions?.classList.remove('hidden');
+                    invisibleOptions?.classList.add('hidden');
+                    orientationGroup?.classList.add('hidden');
+                    positionGroup?.classList.remove('hidden');
+                } else if (e.target.value === 'pattern') {
+                    visibleOptions?.classList.remove('hidden');
+                    invisibleOptions?.classList.add('hidden');
+                    orientationGroup?.classList.remove('hidden');
+                    positionGroup?.classList.add('hidden');
+                } else if (e.target.value === 'invisible') {
+                    visibleOptions?.classList.add('hidden');
+                    invisibleOptions?.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Watermarking: Update slider values
+        const opacitySlider = document.getElementById('watermark-opacity');
+        const opacityValue = document.getElementById('opacity-value');
+        if (opacitySlider && opacityValue) {
+            opacitySlider.addEventListener('input', (e) => {
+                opacityValue.textContent = `${e.target.value}%`;
+            });
+        }
+
+        const sizeSlider = document.getElementById('watermark-size');
+        const sizeValue = document.getElementById('size-value');
+        if (sizeSlider && sizeValue) {
+            sizeSlider.addEventListener('input', (e) => {
+                sizeValue.textContent = `${e.target.value}px`;
+            });
+        }
     }
 
     /**

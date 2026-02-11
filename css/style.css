@@ -202,6 +202,7 @@ header.app-header {
     letter-spacing: -0.05em;
     background: linear-gradient(to right, #fff 20%, var(--text-secondary));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: var(--space-xs);
 }
@@ -456,6 +457,15 @@ button {
 .output-area {
     margin-top: var(--space-xl);
     animation: fadeIn 0.5s ease;
+}
+
+.output-area img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin: var(--space-lg) auto 0;
+    display: block;
+    box-shadow: var(--shadow-card);
 }
 
 .output-area h3 {
