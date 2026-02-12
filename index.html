@@ -16,8 +16,6 @@
 
 <body>
 
-
-
     <header class="app-header">
         <div class="container">
             <div class="logo-wrapper">
@@ -49,7 +47,6 @@
 
     <main id="main-content" class="app-container">
 
-        <!-- Main Navigation -->
         <nav class="app-nav" aria-label="Tool Selection">
             <ul class="nav-list" role="tablist">
                 <li role="presentation">
@@ -79,7 +76,6 @@
             </ul>
         </nav>
 
-        <!-- SEC 1: Encryption -->
         <section id="panel-encrypt" class="panel active" role="tabpanel" aria-labelledby="tab-encrypt">
             <header class="panel-header">
                 <h2 id="enc-header-title">Message Encryption</h2>
@@ -94,7 +90,6 @@
                 </div>
             </div>
 
-            <!-- Text Encryption -->
             <div id="text-mode-group">
                 <form id="form-encrypt" class="security-form" onsubmit="return false;">
                     <div class="form-group">
@@ -131,7 +126,6 @@
                 </form>
             </div>
 
-            <!-- File Encryption -->
             <div id="file-mode-group" class="hidden">
                 <form id="form-encrypt-file" class="security-form" onsubmit="return false;">
                     <div class="form-group">
@@ -168,7 +162,6 @@
             </div>
         </section>
 
-        <!-- SEC 2: Decryption -->
         <section id="panel-decrypt" class="panel hidden" role="tabpanel" aria-labelledby="tab-decrypt">
             <header class="panel-header">
                 <h2 id="dec-header-title">Message Decryption</h2>
@@ -183,7 +176,6 @@
                 </div>
             </div>
 
-            <!-- Text Decryption -->
             <div id="dec-text-mode-group">
                 <form id="form-decrypt" class="security-form" onsubmit="return false;">
                     <div class="form-group">
@@ -213,7 +205,6 @@
                 </form>
             </div>
 
-            <!-- File Decryption -->
             <div id="dec-file-mode-group" class="hidden">
                 <form id="form-decrypt-file" class="security-form" onsubmit="return false;">
                     <div class="form-group">
@@ -243,7 +234,6 @@
             </div>
         </section>
 
-        <!-- SEC 3: Steganography (Nested) -->
         <section id="panel-stego" class="panel hidden" role="tabpanel" aria-labelledby="tab-stego">
             <header class="panel-header">
                 <h2>Image Steganography</h2>
@@ -297,7 +287,6 @@
                         <div class="form-actions">
                             <button type="button" id="btn-stego-save" class="btn-primary">⬇️ Save Encoded Image</button>
                         </div>
-                        <!-- Hidden source for download -->
                         <img id="stego-output" class="hidden" alt="Hidden Stored Image">
                     </div>
                 </form>
@@ -335,7 +324,6 @@
             <canvas id="stego-canvas" class="hidden"></canvas>
         </section>
 
-        <!-- SEC 3.5: Watermarking -->
         <section id="panel-watermark" class="panel hidden" role="tabpanel" aria-labelledby="tab-watermark">
             <header class="panel-header">
                 <h2>Watermarking</h2>
@@ -355,14 +343,12 @@
             <!-- Add Watermark Panel -->
             <div id="watermark-view-add" role="tabpanel">
                 <form id="form-watermark-add" class="security-form" onsubmit="return false;">
-                    <!-- File Upload -->
                     <div class="form-group">
                         <label for="watermark-image">Source File (Image or PDF)</label>
                         <input type="file" id="watermark-image" name="image"
                             accept="image/png, image/jpeg, application/pdf">
                     </div>
 
-                    <!-- Watermark Type -->
                     <div class="form-group">
                         <label>Watermark Type</label>
                         <p class="disclaimer" style="margin-bottom: 10px;">Note: Invisible watermarking is only
@@ -394,14 +380,12 @@
                         </div>
                     </div>
 
-                    <!-- Watermark Text -->
                     <div class="form-group">
                         <label for="watermark-text">Watermark Text</label>
                         <input type="text" id="watermark-text" name="text" required
                             placeholder="Enter watermark text (e.g., © 2026 Your Name)">
                     </div>
 
-                    <!-- Visible Options -->
                     <div id="visible-options">
                         <div class="form-group">
                             <label for="watermark-position">Position</label>
@@ -440,13 +424,11 @@
                         </div>
                     </div>
 
-                    <!-- Invisible Options -->
                     <div id="invisible-options" class="hidden">
                         <div class="form-group">
                             <label for="watermark-password">Password (Optional)</label>
                             <input type="password" id="watermark-password" name="password"
                                 placeholder="Encrypt watermark with password">
-                            <!-- Strength Meter -->
                             <div class="strength-meter hidden" id="watermark-pass-meter">
                                 <div class="strength-bar-container">
                                     <div class="strength-bar" id="watermark-strength-bar"></div>
@@ -513,7 +495,6 @@
             </div>
         </section>
 
-        <!-- SEC 4: Hashing -->
         <section id="panel-hash" class="panel hidden" role="tabpanel" aria-labelledby="tab-hash">
             <header class="panel-header">
                 <h2 id="hash-header-title">File & Text Hashing</h2>
@@ -528,7 +509,6 @@
                 </div>
             </div>
 
-            <!-- Text Hashing -->
             <div id="hash-text-mode-group">
                 <form id="form-hash" class="security-form" onsubmit="return false;">
                     <div class="form-group">
@@ -598,7 +578,6 @@
                 </form>
             </div>
 
-            <!-- File Hashing -->
             <div id="hash-file-mode-group" class="hidden">
                 <form id="form-hash-file" class="security-form" onsubmit="return false;">
                     <div class="form-group">
@@ -669,7 +648,6 @@
             </div>
         </section>
 
-        <!-- SEC 5: Analyzer -->
         <section id="panel-analyze" class="panel hidden" role="tabpanel" aria-labelledby="tab-analyze">
             <header class="panel-header">
                 <h2>Message Analyzer</h2>
@@ -710,14 +688,10 @@
 
     </main>
 
-
-
-    <!-- Footer -->
     <footer class="app-footer">
         <p>&copy; 2026 Developed by <span class="developer-name">Mhmd Aslam</span>. All rights reserved.</p>
     </footer>
 
-    <!-- Custom Modal -->
     <div id="custom-modal" class="modal-overlay hidden" aria-hidden="true">
         <div class="modal-box" role="dialog" aria-modal="true">
             <header class="modal-header">
@@ -734,7 +708,6 @@
         </div>
     </div>
 
-    <!-- Logic Scripts -->
     <script type="module" src="js/app.js"></script>
 
 </body>

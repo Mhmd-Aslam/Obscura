@@ -19,11 +19,9 @@ class App {
     }
 
     init() {
-        // Encrypt Action
         this.ui.dom.formEncrypt.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Check if in file mode
             const isFileMode = this.ui.dom.btnFileMode && this.ui.dom.btnFileMode.classList.contains('active');
             const pass = this.ui.dom.inputEncPass.value;
 
@@ -31,11 +29,8 @@ class App {
 
             try {
                 if (isFileMode) {
-                    // File encryption
                     const file = this.ui.dom.inputEncFile.files[0];
-                    if (!file) {
-                        throw new Error("Please select a file to encrypt");
-                    }
+                    if (!file) throw new Error("Please select a file to encrypt");
 
                     const fileBuffer = await file.arrayBuffer();
                     const metadata = {
@@ -46,27 +41,19 @@ class App {
                     };
 
                     const encryptedBlob = await this.crypto.encryptFile(fileBuffer, pass, metadata);
-
-                    // Download as .obs file
                     const downloadName = file.name.replace(/\.[^/.]+$/, '') + '.obs';
                     this.downloadFile(encryptedBlob, downloadName);
 
-                    // Show success
                     this.ui.showEncryptResult(`✅ File encrypted! Download started: ${downloadName}`);
                 } else {
-                    // Text encryption
                     const msg = this.ui.dom.inputEncMsg.value;
-
                     if (!msg) return;
 
                     const encrypted = await this.crypto.encrypt(msg, pass);
                     this.ui.showEncryptResult(encrypted);
 
-                    // Add to history
                     this.history.add(encrypted);
                     this.ui.renderHistory(this.history.getAll());
-
-                    // Reset form
                     this.ui.dom.formEncrypt.reset();
                 }
             } catch (err) {
@@ -75,10 +62,6 @@ class App {
             }
         });
 
-        // ... (File Encryption Form Handler) ...
-        // Skipping lines 80-114 as they don't have timers
-
-        // Decrypt Action
         this.ui.dom.formDecrypt.addEventListener('submit', async (e) => {
             e.preventDefault();
             const cipher = this.ui.dom.inputDecData.value;
@@ -88,26 +71,20 @@ class App {
 
             try {
                 const result = await this.crypto.decrypt(cipher, pass);
-
                 let plaintext = result;
 
-                // Crypto Engine might return object if metadata is present, but for now assuming it returns plaintext string or parses to one
                 if (typeof result === 'object' && result.m) {
                     plaintext = result.m;
                 }
 
                 this.ui.showDecryptResult(plaintext);
-
-                // Reset form
                 this.ui.dom.formDecrypt.reset();
-
             } catch (err) {
                 console.error(err);
                 this.ui.showError('decrypt', err.message);
             }
         });
 
-        // Decrypt File Action
         if (this.ui.dom.formDecryptFile) {
             this.ui.dom.formDecryptFile.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -118,17 +95,12 @@ class App {
 
                 try {
                     const result = await this.crypto.decryptFile(file, pass);
-
-                    // Download the decrypted file
                     this.downloadFile(result.blob, result.filename);
 
-                    // Show success
                     this.ui.dom.outputDecFile.textContent = `✅ File decrypted! Download started: ${result.filename}`;
                     this.ui.dom.outputDecFile.classList.remove('error-text');
                     this.ui.dom.areaDecFileOutput.classList.remove('hidden');
                     this.ui.dom.areaDecFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                    // Reset form
                     this.ui.dom.formDecryptFile.reset();
                 } catch (err) {
                     console.error(err);
@@ -137,7 +109,6 @@ class App {
             });
         }
 
-        // History UI Clear
         if (this.ui.dom.btnClearHistory) {
             this.ui.dom.btnClearHistory.addEventListener('click', () => {
                 this.history.clear();
@@ -145,10 +116,8 @@ class App {
             });
         }
 
-        // Initial Render
         this.ui.renderHistory(this.history.getAll());
 
-        // Reset Button
         if (this.ui.dom.btnReset) {
             this.ui.dom.btnReset.addEventListener('click', async () => {
                 const confirmed = await this.ui.showConfirm('This will wipe your session history and all current inputs. Are you sure?', 'Reset Application');
@@ -158,11 +127,10 @@ class App {
             });
         }
 
-        // Stego: Hide Data
         this.ui.dom.btnStegoHide.addEventListener('click', async () => {
             const file = this.ui.dom.inputStegoImage.files[0];
             const msg = this.ui.dom.inputStegoMsg.value;
-            const pass = this.ui.dom.inputStegoPass.value; // Optional
+            const pass = this.ui.dom.inputStegoPass.value;
 
             if (!file || !msg) {
                 this.ui.showDialog('Please select an image and enter a message.', 'Input Missing');
@@ -170,7 +138,6 @@ class App {
             }
 
             try {
-                // Pass password (empty string if none)
                 const resultUrl = await this.stego.encode(file, msg, pass);
                 this.ui.showStegoResult(resultUrl);
             } catch (err) {
@@ -179,10 +146,9 @@ class App {
             }
         });
 
-        // Stego: Reveal Data
         this.ui.dom.btnStegoReveal.addEventListener('click', async () => {
             const file = this.ui.dom.inputStegoRevealImage.files[0];
-            const pass = this.ui.dom.inputStegoUnlockPass.value; // Optional
+            const pass = this.ui.dom.inputStegoUnlockPass.value;
 
             if (!file) {
                 this.ui.showDialog('Please select an image to decode.', 'Input Missing');
@@ -202,18 +168,15 @@ class App {
             }
         });
 
-        // Hashing Action
         this.ui.dom.formHash.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const text = formData.get('input');
-            const file = formData.get('file'); // File object
+            const file = formData.get('file');
             const algo = formData.get('algo');
 
             let inputForHash = text;
-            if (file && file.size > 0) {
-                inputForHash = file;
-            }
+            if (file && file.size > 0) inputForHash = file;
 
             if (!inputForHash && (!file || file.size === 0)) {
                 this.ui.showDialog('Please enter text or select a file.', 'Input Missing');
@@ -223,8 +186,6 @@ class App {
             try {
                 const hash = await this.crypto.hash(inputForHash, algo);
                 this.ui.showHashResult(hash);
-
-                // Reset form
                 this.ui.dom.formHash.reset();
             } catch (err) {
                 console.error(err);
@@ -232,7 +193,6 @@ class App {
             }
         });
 
-        // File Hashing Action
         if (this.ui.dom.formHashFile) {
             this.ui.dom.formHashFile.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -247,14 +207,10 @@ class App {
 
                 try {
                     const hash = await this.crypto.hash(file, algo);
-
-                    // Show result in file output area
                     this.ui.dom.outputHashFile.textContent = hash;
                     this.ui.dom.outputHashFile.classList.remove('error-text');
                     this.ui.dom.areaHashFileOutput.classList.remove('hidden');
                     this.ui.dom.areaHashFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                    // Reset form
                     this.ui.dom.formHashFile.reset();
                 } catch (err) {
                     console.error(err);
@@ -263,19 +219,16 @@ class App {
             });
         }
 
-        // Analyzer: Analyze Text
         this.ui.dom.formAnalyze.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const text = formData.get('data');
-
             if (!text) return;
 
             const stats = this.analyzer.analyze(text);
             this.ui.showAnalysisResult(stats);
         });
 
-        // Watermarking: Apply Watermark
         const btnWatermarkApply = document.getElementById('btn-watermark-apply');
         if (btnWatermarkApply) {
             btnWatermarkApply.addEventListener('click', async () => {
@@ -293,8 +246,6 @@ class App {
                 }
 
                 const isPDF = file.type === 'application/pdf';
-
-                // Add loading state
                 const btnApply = document.getElementById('btn-watermark-apply');
                 const originalBtnText = btnApply?.innerText || 'Apply Watermark';
 
@@ -304,9 +255,8 @@ class App {
                 }
 
                 try {
-                    // Size check (> 25MB)
                     if (file.size > 25 * 1024 * 1024) {
-                        const proceed = await this.ui.showConfirm('This file is very large (>25MB). Processing may be slow or cause browser memory issues. Continue?', 'Large File Warning');
+                        const proceed = await this.ui.showConfirm('This file is very large (>25MB). Processing may be slow. Continue?', 'Large File Warning');
                         if (!proceed) {
                             if (btnApply) {
                                 btnApply.disabled = false;
@@ -319,14 +269,12 @@ class App {
                     let result;
 
                     if (type === 'visible') {
-                        // Get visible watermark options
                         const position = document.getElementById('watermark-position')?.value || 'diagonal';
                         const opacity = parseInt(document.getElementById('watermark-opacity')?.value || 30) / 100;
                         const colorInput = document.getElementById('watermark-color')?.value || '#808080';
                         const fontSize = parseInt(document.getElementById('watermark-size')?.value || 72);
 
                         if (isPDF) {
-                            // Convert HEX to RGB (0-1) for pdf-lib
                             const r = parseInt(colorInput.slice(1, 3), 16) / 255;
                             const g = parseInt(colorInput.slice(3, 5), 16) / 255;
                             const b = parseInt(colorInput.slice(5, 7), 16) / 255;
@@ -352,9 +300,7 @@ class App {
                             result = URL.createObjectURL(blob);
                         }
                     } else if (type === 'invisible') {
-                        if (isPDF) {
-                            throw new Error('Invisible watermarking is only supported for images.');
-                        }
+                        if (isPDF) throw new Error('Invisible watermarking is only supported for images.');
                         const password = document.getElementById('watermark-password')?.value || null;
                         const blob = await this.watermark.addInvisibleWatermark(file, text, password);
                         result = URL.createObjectURL(blob);
@@ -364,7 +310,6 @@ class App {
                         const fontSize = parseInt(document.getElementById('watermark-size')?.value || 72);
                         const orientation = document.getElementById('watermark-orientation')?.value || 'diagonal';
 
-                        // Map orientation to rotation
                         let imgRotation = -45;
                         let pdfRotation = 45;
 
@@ -380,7 +325,6 @@ class App {
                             const r = parseInt(colorInput.slice(1, 3), 16) / 255;
                             const g = parseInt(colorInput.slice(3, 5), 16) / 255;
                             const b = parseInt(colorInput.slice(5, 7), 16) / 255;
-
                             const options = { opacity: opacity * 0.5, color: { r, g, b }, fontSize, rotation: pdfRotation, spacing: 200 };
                             const blob = await this.watermark.addPDFPatternWatermark(file, text, options);
                             result = URL.createObjectURL(blob);
@@ -391,7 +335,6 @@ class App {
                         }
                     }
 
-                    // Display result
                     const outputImg = document.getElementById('watermark-output');
                     const resultArea = document.getElementById('watermark-result-area');
                     const resultHeader = document.getElementById('watermark-result-header');
@@ -402,8 +345,6 @@ class App {
                             if (outputImg) outputImg.classList.add('hidden');
                             if (resultHeader) resultHeader.innerText = 'Watermarked PDF';
                             if (btnSave) btnSave.innerText = '⬇️ Download PDF';
-
-                            // Store the URL on the button for saving
                             btnSave.dataset.url = result;
                             btnSave.dataset.type = 'pdf';
                         } else {
@@ -413,7 +354,6 @@ class App {
                             }
                             if (resultHeader) resultHeader.innerText = 'Watermarked Image';
                             if (btnSave) btnSave.innerText = '⬇️ Download Image';
-
                             btnSave.dataset.url = result;
                             btnSave.dataset.type = 'image';
                         }
@@ -424,13 +364,14 @@ class App {
                     console.error(err);
                     this.ui.showError('watermark', err.message);
                 } finally {
-                    btnApply.disabled = false;
-                    btnApply.innerText = originalBtnText;
+                    if (btnApply) {
+                        btnApply.disabled = false;
+                        btnApply.innerText = originalBtnText;
+                    }
                 }
             });
         }
 
-        // Watermarking: Save/Download
         const btnWatermarkSave = document.getElementById('btn-watermark-save');
         if (btnWatermarkSave) {
             btnWatermarkSave.addEventListener('click', (e) => {
@@ -446,7 +387,6 @@ class App {
             });
         }
 
-        // Watermarking: Extract Watermark
         const btnWatermarkExtract = document.getElementById('btn-watermark-extract');
         if (btnWatermarkExtract) {
             btnWatermarkExtract.addEventListener('click', async () => {
@@ -466,17 +406,14 @@ class App {
                     try {
                         result = await this.watermark.extractInvisibleWatermark(file, password);
                     } catch (err) {
-                        // If it's a password protection error, show information dialogue
                         if (err.message.includes('password protected')) {
                             this.ui.showDialog('Watermark is protected. Please enter the password to extract.', '🔐 Password Required');
                             return;
                         } else {
-                            // Re-throw other errors
                             throw err;
                         }
                     }
 
-                    // Display extracted data
                     const watermarkEl = document.getElementById('extracted-watermark');
                     const timestampEl = document.getElementById('extracted-timestamp');
                     const versionEl = document.getElementById('extracted-version');
@@ -497,7 +434,6 @@ class App {
             });
         }
 
-        // Watermarking: Toggle options based on type
         const watermarkTypeRadios = document.querySelectorAll('input[name="watermark-type"]');
         watermarkTypeRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
@@ -523,7 +459,6 @@ class App {
             });
         });
 
-        // Watermarking: Update slider values
         const opacitySlider = document.getElementById('watermark-opacity');
         const opacityValue = document.getElementById('opacity-value');
         if (opacitySlider && opacityValue) {
@@ -541,9 +476,6 @@ class App {
         }
     }
 
-    /**
-     * Helper to trigger file download
-     */
     downloadFile(blob, filename) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -556,8 +488,6 @@ class App {
     }
 }
 
-// Bootstrap
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
-    console.log('Obscura v1 Loaded');
 });

@@ -1,6 +1,5 @@
 /* 
-   theme: Obscura - Premium Cyber Interface
-   mode: Dark Default, Card-Based UI
+   Obscura - Premium Cyber Interface
 */
 
 :root {
@@ -9,7 +8,7 @@
     --bg-grad-start: #0a0a0a;
     --bg-grad-end: #121212;
 
-    /* Card / Surface - Glassy feel */
+    /* Card / Surface */
     --bg-card: rgba(23, 23, 23, 0.7);
     --bg-card-hover: rgba(30, 30, 30, 0.8);
     --bg-input: rgba(0, 0, 0, 0.3);
@@ -22,9 +21,7 @@
 
     /* Brand / Accents */
     --brand-primary: #10b981;
-    /* Emerald */
     --brand-secondary: #3b82f6;
-    /* Blueish secondary for gradients */
     --brand-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --brand-glow: 0 0 15px rgba(16, 185, 129, 0.3);
 
@@ -75,7 +72,6 @@
     /* Slightly darker emerald for light mode visibility */
     --brand-secondary: #2563eb;
     --brand-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    /* Keep same vibrant gradient */
     --brand-glow: 0 0 15px rgba(5, 150, 105, 0.2);
 
     /* Functional */
@@ -95,12 +91,12 @@
 
 [data-theme="light"] .nav-btn:hover {
     background: rgba(0, 0, 0, 0.05);
-    /* Darken slightly on white */
+    /* Darken on hover */
 }
 
 [data-theme="light"] .stat-value {
     color: var(--text-primary);
-    /* Dark text for stats in light mode */
+    /* Stats visibility */
 }
 
 /* Theme Toggle Button */
@@ -148,7 +144,6 @@
     display: block;
 }
 
-/* Keep Reset button positioned correctly with new toggle */
 header .container {
     position: relative;
 }
@@ -402,7 +397,6 @@ textarea {
 }
 
 /* --- Buttons --- */
-/* --- Buttons --- */
 .form-actions {
     display: flex;
     justify-content: space-between;
@@ -411,9 +405,6 @@ textarea {
     margin-top: var(--space-xl);
 }
 
-@media (min-width: 640px) {
-    /* No grid needed if we want spacing */
-}
 
 button {
     font-family: inherit;
@@ -473,7 +464,7 @@ button {
 .btn-clear:hover {
     color: var(--danger);
     background: rgba(239, 68, 68, 0.05);
-    /* faint red bg */
+    /* Result backgrounds */
     border-color: rgba(239, 68, 68, 0.2);
 }
 
@@ -556,7 +547,6 @@ pre,
     display: flex;
     justify-content: center;
     margin-bottom: var(--space-lg);
-    /* Remove border-bottom from previous style, use pill container */
     border-bottom: none;
 }
 
@@ -613,7 +603,6 @@ pre,
     background: var(--bg-surface);
     color: var(--text-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    /* For dark mode active */
     background: rgba(255, 255, 255, 0.1);
     color: white;
 }
@@ -661,7 +650,6 @@ pre,
     gap: 4px;
     max-height: 160px;
     overflow-y: auto;
-    /* Custom Scrollbar */
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
 }

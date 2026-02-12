@@ -16,9 +16,6 @@ export class CryptoEngine {
         };
     }
 
-    /**
-     * Converts a raw password into a cryptographic key.
-     */
     async deriveKey(password, salt) {
         const enc = new TextEncoder();
         const keyMaterial = await window.crypto.subtle.importKey(
@@ -43,9 +40,6 @@ export class CryptoEngine {
         );
     }
 
-    /**
-     * Encrypts plaintext and returns a packed format string (salt:iv:ciphertext).
-     */
     async encrypt(plaintext, password) {
         try {
             const salt = window.crypto.getRandomValues(new Uint8Array(this.config.saltLength));
@@ -65,9 +59,6 @@ export class CryptoEngine {
         }
     }
 
-    /**
-     * Decrypts a packed cipher string.
-     */
     async decrypt(packedString, password) {
         try {
             const parts = packedString.trim().split(':');
@@ -95,9 +86,6 @@ export class CryptoEngine {
         }
     }
 
-    /**
-     * Encrypts a file with metadata.
-     */
     async encryptFile(fileBuffer, password, metadata) {
         try {
             const salt = window.crypto.getRandomValues(new Uint8Array(this.config.saltLength));
@@ -124,9 +112,6 @@ export class CryptoEngine {
         }
     }
 
-    /**
-     * Decrypts a .obs file.
-     */
     async decryptFile(obsBlob, password) {
         try {
             const text = await obsBlob.text();
@@ -163,9 +148,6 @@ export class CryptoEngine {
         }
     }
 
-    /**
-     * Generic hashing method.
-     */
     async hash(input, algo = 'SHA-256') {
         let data;
         if (input instanceof File || input instanceof Blob || input instanceof ArrayBuffer) {
@@ -181,8 +163,6 @@ export class CryptoEngine {
             .map(b => b.toString(16).padStart(2, '0'))
             .join('');
     }
-
-    // --- Helpers ---
 
     bufferToBase64(buffer) {
         const bytes = new Uint8Array(buffer);

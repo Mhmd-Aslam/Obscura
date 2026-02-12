@@ -1,13 +1,11 @@
 /**
  * UI Manager
  * Handles DOM references, updates, and event binding.
- * (Fixed and updated to support History)
  */
 
 export class UIManager {
     constructor() {
         this.dom = {
-            // Navigation
             navButtons: document.querySelectorAll('.nav-btn'),
             panels: document.querySelectorAll('.panel'),
 
@@ -69,7 +67,7 @@ export class UIManager {
             hashHeaderTitle: document.getElementById('hash-header-title'),
             hashHeaderDesc: document.getElementById('hash-header-desc'),
 
-            // Stego Section (Split)
+            // Stego Section
             formStegoHide: document.getElementById('form-stego-hide'),
             inputStegoImage: document.getElementById('stego-image'), // Hide Input
             inputStegoMsg: document.getElementById('stego-message'),
@@ -108,8 +106,8 @@ export class UIManager {
         };
 
         this.bindNav();
-        this.bindStegoTabs(); // NEW
-        this.bindWatermarkTabs(); // NEW - for watermarking sub-tabs
+        this.bindStegoTabs();
+        this.bindWatermarkTabs();
         this.bindCopy();
         this.bindClearButtons();
         this.injectHistoryUI();
@@ -139,7 +137,6 @@ export class UIManager {
     bindTheme() {
         const toggleBtn = document.getElementById('theme-toggle');
 
-        // Check saved preference
         // Check saved preference
         const savedTheme = localStorage.getItem('obscura_theme');
         if (savedTheme) {
@@ -179,7 +176,6 @@ export class UIManager {
 
     // ... (rest of methods)
 
-    // Replaces alert()
     showDialog(message, title = 'Notification') {
         if (!this.dom.modal) {
             alert(message); // Fallback if modal HTML missing
@@ -382,8 +378,6 @@ export class UIManager {
         });
     }
 
-    // --- Dynamic UI Injection for History ---
-    // --- Dynamic UI Injection for History ---
     injectHistoryUI() {
         const encPanel = document.getElementById('panel-encrypt');
         if (!encPanel) return;
@@ -442,7 +436,6 @@ export class UIManager {
         });
     }
 
-    // --- Output Methods ---
 
     showEncryptResult(text) {
         this.dom.outputEnc.textContent = text;
@@ -542,7 +535,6 @@ export class UIManager {
     }
 
     injectSecurityControls() {
-        // 1. Reset Button in Header
         const headerContainer = document.querySelector('header .container');
         if (headerContainer) {
             const resetBtn = document.createElement('button');
@@ -556,7 +548,6 @@ export class UIManager {
         }
     }
 
-    // --- Password Strength ---
     bindPasswordStrength() {
         // Encryption password
         if (this.dom.inputEncPass) {
@@ -654,7 +645,6 @@ export class UIManager {
         }
     }
 
-    // --- File Mode ---
     bindFileMode() {
         const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
