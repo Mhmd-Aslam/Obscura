@@ -99,11 +99,42 @@
     /* Stats visibility */
 }
 
-/* Theme Toggle Button */
-.theme-btn {
+/* Header Actions (Help & Theme) */
+.header-actions {
     position: absolute;
     top: var(--space-lg);
     right: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.btn-help {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: auto;
+}
+
+[data-theme="light"] .btn-help {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.btn-help:hover {
+    background: var(--brand-primary);
+    color: white;
+    border-color: var(--brand-primary);
+}
+
+/* Theme Toggle Button */
+.theme-btn {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
@@ -173,6 +204,30 @@ header .container {
 }
 
 
+/* Help Guide Content */
+
+/* Help Guide Content */
+.help-guide {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+}
+
+.help-guide section h4 {
+    color: var(--brand-primary);
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+
+.help-guide section p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+
 /* --- Base --- */
 html {
     font-size: 16px;
@@ -214,22 +269,31 @@ header.app-header {
     text-align: center;
 }
 
+.logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+}
+
 .logo-wrapper h1 {
     font-family: var(--font-heading);
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 800;
     letter-spacing: -0.05em;
-    background: linear-gradient(to right, #fff 20%, var(--text-secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: var(--space-xs);
+    color: var(--text-primary);
+    margin: 0;
 }
 
 [data-theme="light"] .logo-wrapper h1 {
     background: none;
     -webkit-text-fill-color: initial;
     color: #000000;
+}
+
+[data-theme="light"] .app-logo {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .logo-wrapper .subtitle {
@@ -356,6 +420,21 @@ header.app-header {
     margin-bottom: var(--space-lg);
 }
 
+.strength-label {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.status-match {
+    color: var(--brand-primary);
+}
+
+.status-mismatch {
+    color: var(--danger);
+}
+
 label {
     display: block;
     margin-bottom: var(--space-sm);
@@ -390,10 +469,92 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
-textarea {
-    min-height: 140px;
-    resize: vertical;
-    line-height: 1.5;
+/* --- Drop Zone UI --- */
+.drop-zone {
+    position: relative;
+    width: 100%;
+    min-height: 160px;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--bg-input);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.drop-zone:hover {
+    border-color: var(--brand-primary);
+    background: rgba(16, 185, 129, 0.03);
+}
+
+.drop-zone.drag-over {
+    border-color: var(--brand-primary);
+    background: rgba(16, 185, 129, 0.08);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+    transform: scale(1.01);
+}
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.drop-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.drop-zone-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-sm);
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.drop-zone.drag-over .drop-zone-icon {
+    transform: translateY(-5px);
+}
+
+.drop-zone-text {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.drop-zone-hint {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+}
+
+/* File Selected State */
+.drop-zone.has-file {
+    border-style: solid;
+    border-color: var(--brand-primary);
+}
+
+.drop-zone-file-info {
+    font-family: var(--font-mono);
+    color: var(--brand-primary);
+    font-size: 0.85rem;
+    margin-top: var(--space-xs);
 }
 
 /* --- Buttons --- */
@@ -440,6 +601,7 @@ button {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
+    padding: 0 2rem;
 }
 
 .btn-secondary:hover {
@@ -894,6 +1056,17 @@ pre,
     color: var(--success);
 }
 
+/* Comparison Status */
+.status-match {
+    color: var(--success) !important;
+    font-weight: bold;
+}
+
+.status-mismatch {
+    color: var(--danger) !important;
+    font-weight: bold;
+}
+
 .strength-bar.secure {
     background-color: #3b82f6;
 }
@@ -1073,12 +1246,16 @@ pre,
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
+    gap: var(--space-md);
     background: rgba(0, 0, 0, 0.2);
 }
 
-.btn-modal-ok {
+.btn-modal-ok,
+.btn-modal-cancel {
     padding: 0.5rem 1.5rem;
-    min-width: 100px;
+    min-width: 120px;
+    flex: none;
+    /* Don't grow in modal */
 }
 
 /* --- Footer --- */
@@ -1120,6 +1297,7 @@ pre,
     .logo-wrapper h1 {
         font-size: 2rem;
     }
+
 
     .nav-list {
         background: var(--bg-body);

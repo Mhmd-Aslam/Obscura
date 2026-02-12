@@ -66,6 +66,10 @@ export class UIManager {
             areaHashFileOutput: document.getElementById('hash-file-output-area'),
             hashHeaderTitle: document.getElementById('hash-header-title'),
             hashHeaderDesc: document.getElementById('hash-header-desc'),
+            inputHashCompare: document.getElementById('hash-compare'),
+            statusHashCompare: document.getElementById('hash-compare-status'),
+            inputHashFileCompare: document.getElementById('hash-file-compare'),
+            statusHashFileCompare: document.getElementById('hash-file-compare-status'),
 
             // Stego Section
             formStegoHide: document.getElementById('form-stego-hide'),
@@ -102,36 +106,193 @@ export class UIManager {
             modalMessage: document.getElementById('modal-message'),
             modalCloseBtn: document.querySelector('.btn-close-modal'),
             modalOkBtn: document.querySelector('.btn-modal-ok'),
-            modalCancelBtn: document.querySelector('.btn-modal-cancel')
+            modalCancelBtn: document.querySelector('.btn-modal-cancel'),
+            btnHelp: document.getElementById('btn-help')
         };
 
-        this.bindNav();
-        this.bindStegoTabs();
-        this.bindWatermarkTabs();
-        this.bindCopy();
-        this.bindClearButtons();
-        this.injectHistoryUI();
-        this.injectSecurityControls();
-        this.bindModal();
-        this.bindTheme();
-        this.bindStegoSave();
-        this.bindPasswordStrength();
-        this.bindFileMode();
+        try {
+            this.bindNav();
+            this.bindStegoTabs();
+            this.bindWatermarkTabs();
+            this.bindCopy();
+            this.bindClearButtons();
+            this.injectHistoryUI();
+            this.injectSecurityControls();
+            this.bindModal();
+            this.bindTheme();
+            this.bindStegoSave();
+            this.bindPasswordStrength();
+            this.bindFileMode();
+            this.bindHelp();
+            this.bindDragAndDrop();
+            this.bindHashComparison();
+        } catch (err) {
+            console.error("UI Initialization failed partially:", err);
+        }
     }
 
     bindClearButtons() {
         const clears = document.querySelectorAll('button[type="reset"]');
         clears.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // Form reset happens automatically.
-                // We might need to manually hide output areas or clear custom inputs if needed.
+                // Form reset happens automatically for native inputs.
                 const form = btn.closest('form');
 
                 // Hide any associated output areas
                 const outputs = document.querySelectorAll('.output-area');
                 outputs.forEach(el => el.classList.add('hidden'));
+
+                // Clear Drop Zones and Previews if inside a form
+                if (form) {
+                    const dropZones = form.querySelectorAll('.drop-zone');
+                    dropZones.forEach(dz => this.updateDropZoneUI(dz, null));
+
+                    const previews = form.querySelectorAll('.file-preview');
+                    previews.forEach(p => {
+                        p.innerHTML = '';
+                        p.classList.add('hidden');
+                    });
+
+                    const meters = form.querySelectorAll('.strength-meter, .strength-label');
+                    meters.forEach(m => m.classList.add('hidden'));
+                }
             });
         });
+    }
+
+    bindHelp() {
+        if (this.dom.btnHelp) {
+            this.dom.btnHelp.addEventListener('click', () => {
+                const helpContent = `
+                    <div class="help-guide">
+                        <section>
+                            <h4>🔒 Encryption</h4>
+                            <p>Lock your text or files with a password. Only someone with the correct password can unlock them.</p>
+                        </section>
+                        <section>
+                            <h4>🔓 Decryption</h4>
+                            <p>Unlock previously secured messages or files. You must provide the exact cipher string and original password.</p>
+                        </section>
+                        <section>
+                            <h4>🖼️ Steganography</h4>
+                            <p>Hide secret messages inside images. The image looks normal, but contains hidden data that only Obscura can reveal.</p>
+                        </section>
+                        <section>
+                            <h4>✒️ Watermarking</h4>
+                            <p>Add visible text overlays or invisible high-tech signatures to your images and PDFs to protect your work.</p>
+                        </section>
+                        <section>
+                            <h4>🔑 Hashing</h4>
+                            <p>Generate unique digital fingerprints for your text or files. Useful for verifying that data hasn't been changed.</p>
+                        </section>
+                        <section>
+                            <h4>📊 Analyzer</h4>
+                            <p>Check the "Entropy" (randomness) of your data. High entropy typically indicates encrypted information.</p>
+                        </section>
+                    </div>
+                `;
+                this.showDialog(helpContent, 'Quick Start Guide', true);
+            });
+        }
+    }
+
+    bindDragAndDrop() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+
+        fileInputs.forEach(input => {
+            const dropZone = input.closest('.drop-zone');
+            const container = dropZone || input.closest('.form-group') || input.parentElement;
+            if (!container) return;
+
+            const targetElement = dropZone || input;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                container.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                container.addEventListener(eventName, () => {
+                    targetElement.classList.add('drag-over');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                container.addEventListener(eventName, () => {
+                    targetElement.classList.remove('drag-over');
+                }, false);
+            });
+
+            container.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files && files.length > 0) {
+                    input.files = files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            }, false);
+
+            input.addEventListener('change', () => {
+                if (dropZone) {
+                    this.updateDropZoneUI(dropZone, input.files[0]);
+                }
+            });
+        });
+    }
+
+    updateDropZoneUI(dropZone, file) {
+        let fileInfo = dropZone.querySelector('.drop-zone-file-info');
+        if (file) {
+            dropZone.classList.add('has-file');
+            if (!fileInfo) {
+                fileInfo = document.createElement('div');
+                fileInfo.className = 'drop-zone-file-info';
+                const content = dropZone.querySelector('.drop-zone-content');
+                if (content) content.appendChild(fileInfo);
+                else dropZone.appendChild(fileInfo);
+            }
+            fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+        } else {
+            dropZone.classList.remove('has-file');
+            if (fileInfo) fileInfo.remove();
+        }
+    }
+
+    bindHashComparison() {
+        const checkCompare = (inputEl, resultEl, statusEl) => {
+            const original = inputEl.value.trim().toLowerCase();
+            const generated = resultEl.textContent.trim().toLowerCase();
+
+            if (!original) {
+                statusEl.textContent = '';
+                statusEl.classList.add('hidden');
+                return;
+            }
+
+            statusEl.classList.remove('hidden');
+            if (original === generated) {
+                statusEl.textContent = '✓ Hash Match';
+                statusEl.className = 'strength-label status-match';
+            } else {
+                statusEl.textContent = '✗ Hash Mismatch';
+                statusEl.className = 'strength-label status-mismatch';
+            }
+        };
+
+        if (this.dom.inputHashCompare) {
+            this.dom.inputHashCompare.addEventListener('input', () => {
+                checkCompare(this.dom.inputHashCompare, this.dom.outputHash, this.dom.statusHashCompare);
+            });
+        }
+
+        if (this.dom.inputHashFileCompare) {
+            this.dom.inputHashFileCompare.addEventListener('input', () => {
+                checkCompare(this.dom.inputHashFileCompare, this.dom.outputHashFile, this.dom.statusHashFileCompare);
+            });
+        }
     }
 
     bindTheme() {
@@ -176,14 +337,19 @@ export class UIManager {
 
     // ... (rest of methods)
 
-    showDialog(message, title = 'Notification') {
+    showDialog(message, title = 'Notification', useHTML = false) {
         if (!this.dom.modal) {
             alert(message); // Fallback if modal HTML missing
             return;
         }
 
         this.dom.modalTitle.textContent = title;
-        this.dom.modalMessage.textContent = message;
+
+        if (useHTML) {
+            this.dom.modalMessage.innerHTML = message;
+        } else {
+            this.dom.modalMessage.textContent = message;
+        }
 
         // Hide cancel button for regular alert
         if (this.dom.modalCancelBtn) this.dom.modalCancelBtn.classList.add('hidden');
@@ -457,6 +623,13 @@ export class UIManager {
         this.dom.outputHash.classList.remove('error-text'); // Clear error state if any
         this.dom.areaHashOutput.classList.remove('hidden');
         this.dom.areaHashOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    showHashFileResult(hash) {
+        this.dom.outputHashFile.textContent = hash;
+        this.dom.outputHashFile.classList.remove('error-text');
+        this.dom.areaHashFileOutput.classList.remove('hidden');
+        this.dom.areaHashFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     showStegoResult(dataUrl) {

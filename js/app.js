@@ -186,7 +186,12 @@ class App {
             try {
                 const hash = await this.crypto.hash(inputForHash, algo);
                 this.ui.showHashResult(hash);
-                this.ui.dom.formHash.reset();
+                // Trigger comparison if input exists
+                if (this.ui.dom.inputHashCompare.value) {
+                    this.ui.dom.inputHashCompare.dispatchEvent(new Event('input'));
+                }
+                this.ui.dom.areaHashOutput.classList.remove('hidden');
+                this.ui.dom.areaHashOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } catch (err) {
                 console.error(err);
                 this.ui.showError('hash', 'Hashing failed.');
@@ -207,11 +212,11 @@ class App {
 
                 try {
                     const hash = await this.crypto.hash(file, algo);
-                    this.ui.dom.outputHashFile.textContent = hash;
-                    this.ui.dom.outputHashFile.classList.remove('error-text');
-                    this.ui.dom.areaHashFileOutput.classList.remove('hidden');
-                    this.ui.dom.areaHashFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    this.ui.dom.formHashFile.reset();
+                    this.ui.showHashFileResult(hash);
+                    // Trigger comparison if input exists
+                    if (this.ui.dom.inputHashFileCompare.value) {
+                        this.ui.dom.inputHashFileCompare.dispatchEvent(new Event('input'));
+                    }
                 } catch (err) {
                     console.error(err);
                     this.ui.showError('hash', 'File hashing failed.');
@@ -488,6 +493,16 @@ class App {
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed', err));
+        });
+    }
 });

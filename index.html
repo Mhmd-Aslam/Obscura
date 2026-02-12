@@ -11,7 +11,29 @@
     <!-- External Resources -->
     <link rel="stylesheet" href="css/utility.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="assets/favicon.ico">
+    <link rel="icon" href="/logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#050505">
+
+    <!-- Mobile Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Obscura">
+
+    <!-- OpenGraph / Social Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Obscura | Professional Security Suite">
+    <meta property="og:description"
+        content="A privacy-focused browser-based security suite featuring Encryption, Steganography, Hashing, and Message Analysis.">
+    <meta property="og:image" content="/logo.png">
+    <meta property="og:url" content="https://obscura.security">
+
+    <!-- Twitter Meta -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Obscura | Professional Security Suite">
+    <meta name="twitter:description"
+        content="Secure your data with AES-256 encryption, steganography, and watermarking—all in your browser.">
+    <meta name="twitter:image" content="/logo.png">
 </head>
 
 <body>
@@ -19,29 +41,36 @@
     <header class="app-header">
         <div class="container">
             <div class="logo-wrapper">
-                <h1>Obscura</h1>
-                <p class="subtitle">Security beyond sight.</p>
+                <div class="logo-text">
+                    <h1>Obscura</h1>
+                    <p class="subtitle">Security beyond sight.</p>
+                </div>
             </div>
-            <button id="theme-toggle" class="theme-btn" aria-label="Toggle Light/Dark Mode">
-                <!-- Sun Icon -->
-                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <!-- Moon Icon -->
-                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
+            <div class="header-actions">
+                <button id="btn-help" class="btn-help" title="Quick Start Guide">HELP</button>
+                <button id="theme-toggle" class="theme-btn" aria-label="Toggle Light/Dark Mode">
+                    <!-- Sun Icon -->
+                    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -130,7 +159,18 @@
                 <form id="form-encrypt-file" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="enc-file">File Upload (Max 10MB)</label>
-                        <input type="file" id="enc-file" name="file" accept="*/*">
+                        <div class="drop-zone">
+                            <input type="file" id="enc-file" name="file" accept="*/*">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop a file here or click to browse</span>
+                                <span class="drop-zone-hint">Supports files up to 10MB</span>
+                            </div>
+                        </div>
                         <div id="file-preview" class="file-preview hidden"></div>
                     </div>
 
@@ -209,7 +249,18 @@
                 <form id="form-decrypt-file" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="dec-file">.obs File Upload</label>
-                        <input type="file" id="dec-file" name="file" accept=".obs">
+                        <div class="drop-zone">
+                            <input type="file" id="dec-file" name="file" accept=".obs">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop .obs file or click to browse</span>
+                                <span class="drop-zone-hint">Original encrypted package</span>
+                            </div>
+                        </div>
                         <div id="dec-file-preview" class="file-preview hidden"></div>
                     </div>
 
@@ -255,7 +306,18 @@
                 <form id="form-stego-hide" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="stego-image">Cover Image</label>
-                        <input type="file" id="stego-image" name="image" accept="image/png, image/jpeg">
+                        <div class="drop-zone">
+                            <input type="file" id="stego-image" name="image" accept="image/png, image/jpeg">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop cover image or click to browse</span>
+                                <span class="drop-zone-hint">PNG or JPEG recommended</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -297,7 +359,18 @@
                 <form id="form-stego-reveal" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="stego-reveal-image">Encoded Image</label>
-                        <input type="file" id="stego-reveal-image" name="image" accept="image/png, image/jpeg">
+                        <div class="drop-zone">
+                            <input type="file" id="stego-reveal-image" name="image" accept="image/png, image/jpeg">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop encoded image or click to browse</span>
+                                <span class="drop-zone-hint">To reveal hidden data</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group" id="stego-unlock-group">
@@ -345,8 +418,19 @@
                 <form id="form-watermark-add" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="watermark-image">Source File (Image or PDF)</label>
-                        <input type="file" id="watermark-image" name="image"
-                            accept="image/png, image/jpeg, application/pdf">
+                        <div class="drop-zone">
+                            <input type="file" id="watermark-image" name="image"
+                                accept="image/png, image/jpeg, application/pdf">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop image/PDF or click to browse</span>
+                                <span class="drop-zone-hint">Visible or invisible watermark</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -459,7 +543,18 @@
                 <form id="form-watermark-extract" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="watermark-extract-image">Watermarked Image</label>
-                        <input type="file" id="watermark-extract-image" name="image" accept="image/png, image/jpeg">
+                        <div class="drop-zone">
+                            <input type="file" id="watermark-extract-image" name="image" accept="image/png, image/jpeg">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop watermarked image or click to browse</span>
+                                <span class="drop-zone-hint">To extract hidden data</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -574,6 +669,12 @@
                             </p>
                             <button type="button" class="btn-copy" aria-label="Copy hash">Copy</button>
                         </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label for="hash-compare">Compare with original hash</label>
+                            <input type="text" id="hash-compare" placeholder="Paste the original hash to verify..."
+                                autocomplete="off" style="font-family: var(--font-mono); font-size: 0.85rem;">
+                            <div id="hash-compare-status" class="strength-label hidden"></div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -582,7 +683,18 @@
                 <form id="form-hash-file" class="security-form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="hash-file">Input File</label>
-                        <input type="file" id="hash-file" name="file">
+                        <div class="drop-zone">
+                            <input type="file" id="hash-file" name="file">
+                            <div class="drop-zone-content">
+                                <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop file or click to browse</span>
+                                <span class="drop-zone-hint">Generate unique fingerprint</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -642,6 +754,12 @@
                                 style="font-family: var(--font-mono); word-break: break-all; color: var(--accent-primary);">
                             </p>
                             <button type="button" class="btn-copy" aria-label="Copy hash">Copy</button>
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label for="hash-file-compare">Compare with original hash</label>
+                            <input type="text" id="hash-file-compare" placeholder="Paste the original hash to verify..."
+                                autocomplete="off" style="font-family: var(--font-mono); font-size: 0.85rem;">
+                            <div id="hash-file-compare-status" class="strength-label hidden"></div>
                         </div>
                     </div>
                 </form>
