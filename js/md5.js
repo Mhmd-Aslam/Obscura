@@ -1,173 +1,118 @@
 /**
  * MD5 (Message-Digest Algorithm) Implementation
  * - Pure JavaScript
- * - Inputs: String or Uint8Array (binary)
+ * - Inputs: String (UTF-8) or Uint8Array/ArrayBuffer (binary)
  * - Output: Hex String
  */
 export function md5(input) {
-    function safeAdd(x, y) {
-        const lsw = (x & 0xffff) + (y & 0xffff);
-        const msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-        return (msw << 16) | (lsw & 0xffff);
+    let k = [
+        0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
+        0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
+        0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
+        0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
+        0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa,
+        0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
+        0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed,
+        0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
+        0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c,
+        0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
+        0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05,
+        0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
+        0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
+        0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
+        0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
+        0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
+    ];
+
+    let r = [
+        7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+        5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+        4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+        6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
+    ];
+
+    // Helper: String to UTF-8 Bytes
+    function strToUtf8(str) {
+        return new TextEncoder().encode(str);
     }
 
-    function bitRotateLeft(num, cnt) {
-        return (num << cnt) | (num >>> (32 - cnt));
-    }
-
-    function md5cmn(q, a, b, x, s, t) {
-        return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
-    }
-
-    function md5ff(a, b, c, d, x, s, t) {
-        return md5cmn((b & c) | (~b & d), a, b, x, s, t);
-    }
-
-    function md5gg(a, b, c, d, x, s, t) {
-        return md5cmn((b & d) | (c & ~d), a, b, x, s, t);
-    }
-
-    function md5hh(a, b, c, d, x, s, t) {
-        return md5cmn(b ^ c ^ d, a, b, x, s, t);
-    }
-
-    function md5ii(a, b, c, d, x, s, t) {
-        return md5cmn(c ^ (b | ~d), a, b, x, s, t);
-    }
-
-    function binlMD5(x, len) {
-        x[len >> 5] |= 0x80 << len % 32;
-        x[(((len + 64) >>> 9) << 4) + 14] = len;
-
-        let a = 1732584193;
-        let b = -271733879;
-        let c = -1732584194;
-        let d = 271733878;
-
-        for (let i = 0; i < x.length; i += 16) {
-            const olda = a;
-            const oldb = b;
-            const oldc = c;
-            const oldd = d;
-
-            a = md5ff(a, b, c, d, x[i], 7, -680876936);
-            d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
-            c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
-            b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330);
-            a = md5ff(a, b, c, d, x[i + 4], 7, -176418897);
-            d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426);
-            c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341);
-            b = md5ff(b, c, d, a, x[i + 7], 22, -45705983);
-            a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416);
-            d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417);
-            c = md5ff(c, d, a, b, x[i + 10], 17, -42063);
-            b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162);
-            a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682);
-            d = md5ff(d, a, b, c, x[i + 13], 12, -40341101);
-            c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290);
-            b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329);
-
-            a = md5gg(a, b, c, d, x[i + 1], 5, -165796510);
-            d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632);
-            c = md5gg(c, d, a, b, x[i + 11], 14, 643717713);
-            b = md5gg(b, c, d, a, x[i], 20, -373897302);
-            a = md5gg(a, b, c, d, x[i + 5], 5, -701558691);
-            d = md5gg(d, a, b, c, x[i + 10], 9, 38016083);
-            c = md5gg(c, d, a, b, x[i + 15], 14, -660478335);
-            b = md5gg(b, c, d, a, x[i + 4], 20, -405537848);
-            a = md5gg(a, b, c, d, x[i + 9], 5, 568446438);
-            d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690);
-            c = md5gg(c, d, a, b, x[i + 3], 14, -187363961);
-            b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501);
-            a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467);
-            d = md5gg(d, a, b, c, x[i + 2], 9, -51403784);
-            c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473);
-            b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734);
-
-            a = md5hh(a, b, c, d, x[i + 5], 4, -378558);
-            d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463);
-            c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562);
-            b = md5hh(b, c, d, a, x[i + 14], 23, -35309556);
-            a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060);
-            d = md5hh(d, a, b, c, x[i + 4], 11, 1272855582);
-            c = md5hh(c, d, a, b, x[i + 7], 16, -155497632);
-            b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640);
-            a = md5hh(a, b, c, d, x[i + 13], 4, 681279174);
-            d = md5hh(d, a, b, c, x[i], 11, -358537222);
-            c = md5hh(c, d, a, b, x[i + 3], 16, -722521979);
-            b = md5hh(b, c, d, a, x[i + 6], 23, 76029189);
-            a = md5hh(a, b, c, d, x[i + 9], 4, -640364487);
-            d = md5hh(d, a, b, c, x[i + 12], 11, -421815835);
-            c = md5hh(c, d, a, b, x[i + 15], 16, 530742520);
-            b = md5hh(b, c, d, a, x[i + 2], 23, -995338651);
-
-            a = md5ii(a, b, c, d, x[i], 6, -198630844);
-            d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415);
-            c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905);
-            b = md5ii(b, c, d, a, x[i + 5], 21, -57434055);
-            a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571);
-            d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606);
-            c = md5ii(c, d, a, b, x[i + 10], 15, -1051523);
-            b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799);
-            a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359);
-            d = md5ii(d, a, b, c, x[i + 15], 10, -30611744);
-            c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380);
-            b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649);
-            a = md5ii(a, b, c, d, x[i + 4], 6, -145523070);
-            d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379);
-            c = md5ii(c, d, a, b, x[i + 2], 15, 718787259);
-            b = md5ii(b, c, d, a, x[i + 9], 21, -343485551);
-
-            a = safeAdd(a, olda);
-            b = safeAdd(b, oldb);
-            c = safeAdd(c, oldc);
-            d = safeAdd(d, oldd);
-        }
-        return [a, b, c, d];
-    }
-
-    // Convert string to 32-bit int array (little endian)
-    function strToBinl(str) {
-        const nblk = ((str.length * 8 + 64) >>> 9) << 4; // number of 16-word blocks
-        const blks = Array(nblk + 16).fill(0); // 15 unused check
-        for (let i = 0; i < str.length * 8; i += 8) {
-            blks[i >> 5] |= (str.charCodeAt(i / 8) & 0xff) << i % 32;
-        }
-        return blks;
-    }
-
-    // Convert Uint8Array to 32-bit int array (little endian)
-    function uint8ToBinl(u8) {
-        // similar logic but for raw bytes
-        const len = u8.length;
-        const nblk = ((len * 8 + 64) >>> 9) << 4;
-        const blks = Array(nblk + 16).fill(0);
-        for (let i = 0; i < len; i++) {
-            blks[i >> 2] |= (u8[i] & 0xFF) << ((i % 4) * 8);
-        }
-        return blks; // returns array of numbers
-    }
-
-    function binlToHex(binarray) {
-        const hex_tab = '0123456789abcdef';
-        let str = '';
-        for (let i = 0; i < binarray.length * 4; i++) {
-            str +=
-                hex_tab.charAt((binarray[i >> 2] >> ((i % 4) * 8 + 4)) & 0xf) +
-                hex_tab.charAt((binarray[i >> 2] >> ((i % 4) * 8)) & 0xf);
-        }
-        return str;
-    }
-
-    let blocks;
+    // Main logic
+    let bytes;
     if (typeof input === 'string') {
-        blocks = strToBinl(input);
-        return binlToHex(binlMD5(blocks, input.length * 8));
-    } else if (input instanceof Uint8Array || input instanceof ArrayBuffer) {
-        const u8 = (input instanceof ArrayBuffer) ? new Uint8Array(input) : input;
-        blocks = uint8ToBinl(u8);
-        return binlToHex(binlMD5(blocks, u8.length * 8));
+        bytes = strToUtf8(input);
+    } else if (input instanceof Uint8Array) {
+        bytes = input;
+    } else if (input instanceof ArrayBuffer) {
+        bytes = new Uint8Array(input);
     } else {
-        throw new Error("MD5 Input must be String or Uint8Array");
+        throw new Error("MD5 Input must be String, Uint8Array or ArrayBuffer");
     }
+
+    let msgLen = bytes.length;
+    let bitLen = msgLen * 8;
+
+    // Padding
+    let paddingLen = (bitLen % 512 < 448) ? (448 - bitLen % 512) : (512 - bitLen % 512 + 448);
+    let totalLen = (bitLen + paddingLen + 64) / 8;
+    let buffer = new Uint8Array(totalLen);
+    buffer.set(bytes);
+    buffer[msgLen] = 0x80;
+
+    // Add bit length at the end (64-bit little endian)
+    let view = new DataView(buffer.buffer);
+    view.setUint32(totalLen - 8, bitLen, true);
+    // Note: high bits of length ignored for files < 512MB
+
+    let h0 = 0x67452301;
+    let h1 = 0xefcdab89;
+    let h2 = 0x98badcfe;
+    let h3 = 0x10325476;
+
+    for (let offset = 0; offset < totalLen; offset += 64) {
+        let w = new Uint32Array(16);
+        for (let i = 0; i < 16; i++) {
+            w[i] = view.getUint32(offset + i * 4, true);
+        }
+
+        let a = h0, b = h1, c = h2, d = h3;
+
+        for (let i = 0; i < 64; i++) {
+            let f, g;
+            if (i < 16) {
+                f = (b & c) | (~b & d);
+                g = i;
+            } else if (i < 32) {
+                f = (d & b) | (~d & c);
+                g = (5 * i + 1) % 16;
+            } else if (i < 48) {
+                f = b ^ c ^ d;
+                g = (3 * i + 5) % 16;
+            } else {
+                f = c ^ (b | ~d);
+                g = (7 * i) % 16;
+            }
+
+            let temp = d;
+            d = c;
+            c = b;
+            let rotateVal = a + f + k[i] + w[g];
+            b = (b + ((rotateVal << r[i]) | (rotateVal >>> (32 - r[i])))) | 0;
+            a = temp;
+        }
+
+        h0 = (h0 + a) | 0;
+        h1 = (h1 + b) | 0;
+        h2 = (h2 + c) | 0;
+        h3 = (h3 + d) | 0;
+    }
+
+    const toHex = (n) => {
+        let s = "";
+        for (let i = 0; i < 4; i++) {
+            s += ((n >> (i * 8)) & 0xff).toString(16).padStart(2, "0");
+        }
+        return s;
+    };
+
+    return toHex(h0) + toHex(h1) + toHex(h2) + toHex(h3);
 }

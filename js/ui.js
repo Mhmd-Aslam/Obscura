@@ -17,6 +17,8 @@ export class UIManager {
             inputEncPass: document.getElementById('enc-pass'),
             areaEncOutput: document.getElementById('enc-output-area'),
             outputEnc: document.getElementById('enc-result'),
+            encHeaderTitle: document.getElementById('enc-header-title'),
+            encHeaderDesc: document.getElementById('enc-header-desc'),
 
             // File Mode
             btnTextMode: document.getElementById('btn-text-mode'),
@@ -48,6 +50,8 @@ export class UIManager {
             decFilePreview: document.getElementById('dec-file-preview'),
             areaDecFileOutput: document.getElementById('dec-file-output-area'),
             outputDecFile: document.getElementById('dec-file-result'),
+            decHeaderTitle: document.getElementById('dec-header-title'),
+            decHeaderDesc: document.getElementById('dec-header-desc'),
 
             // Hash Section
             formHash: document.getElementById('form-hash'),
@@ -62,6 +66,8 @@ export class UIManager {
             formHashFile: document.getElementById('form-hash-file'),
             outputHashFile: document.getElementById('hash-file-result'),
             areaHashFileOutput: document.getElementById('hash-file-output-area'),
+            hashHeaderTitle: document.getElementById('hash-header-title'),
+            hashHeaderDesc: document.getElementById('hash-header-desc'),
 
             // Stego Section (Split)
             formStegoHide: document.getElementById('form-stego-hide'),
@@ -676,6 +682,11 @@ export class UIManager {
                 this.dom.fileModeGroup.classList.add('hidden');
                 this.dom.inputEncMsg.required = true;
                 if (this.dom.inputEncFile) this.dom.inputEncFile.required = false;
+
+                // Update header
+                if (this.dom.encHeaderTitle) this.dom.encHeaderTitle.textContent = 'Message Encryption';
+                if (this.dom.encHeaderDesc) this.dom.encHeaderDesc.textContent = 'Secure your text using AES-GCM 256-bit encryption.';
+
                 this.resetAll();
             });
 
@@ -686,6 +697,11 @@ export class UIManager {
                 this.dom.textModeGroup.classList.add('hidden');
                 this.dom.inputEncMsg.required = false;
                 if (this.dom.inputEncFile) this.dom.inputEncFile.required = true;
+
+                // Update header
+                if (this.dom.encHeaderTitle) this.dom.encHeaderTitle.textContent = 'File Encryption';
+                if (this.dom.encHeaderDesc) this.dom.encHeaderDesc.textContent = 'Secure your files using AES-GCM 256-bit encryption.';
+
                 this.resetAll();
             });
         }
@@ -697,6 +713,11 @@ export class UIManager {
                 this.dom.btnDecFileMode.classList.remove('active');
                 this.dom.decTextModeGroup.classList.remove('hidden');
                 this.dom.decFileModeGroup.classList.add('hidden');
+
+                // Update header
+                if (this.dom.decHeaderTitle) this.dom.decHeaderTitle.textContent = 'Message Decryption';
+                if (this.dom.decHeaderDesc) this.dom.decHeaderDesc.textContent = 'Decrypt a previously secured message.';
+
                 this.resetAll();
             });
 
@@ -705,6 +726,11 @@ export class UIManager {
                 this.dom.btnDecTextMode.classList.remove('active');
                 this.dom.decFileModeGroup.classList.remove('hidden');
                 this.dom.decTextModeGroup.classList.add('hidden');
+
+                // Update header
+                if (this.dom.decHeaderTitle) this.dom.decHeaderTitle.textContent = 'File Decryption';
+                if (this.dom.decHeaderDesc) this.dom.decHeaderDesc.textContent = 'Decrypt a previously secured .obs file.';
+
                 this.resetAll();
             });
         }
@@ -764,6 +790,11 @@ export class UIManager {
                 this.dom.btnHashFileMode.classList.remove('active');
                 this.dom.hashTextModeGroup.classList.remove('hidden');
                 this.dom.hashFileModeGroup.classList.add('hidden');
+
+                // Update header
+                if (this.dom.hashHeaderTitle) this.dom.hashHeaderTitle.textContent = 'Text Hashing';
+                if (this.dom.hashHeaderDesc) this.dom.hashHeaderDesc.textContent = 'Generate fingerprints for your text using SHA-256, SHA-512, etc.';
+
                 this.resetAll();
             });
 
@@ -772,6 +803,11 @@ export class UIManager {
                 this.dom.btnHashTextMode.classList.remove('active');
                 this.dom.hashFileModeGroup.classList.remove('hidden');
                 this.dom.hashTextModeGroup.classList.add('hidden');
+
+                // Update header
+                if (this.dom.hashHeaderTitle) this.dom.hashHeaderTitle.textContent = 'File Hashing';
+                if (this.dom.hashHeaderDesc) this.dom.hashHeaderDesc.textContent = 'Generate fingerprints for your files using SHA-256, SHA-512, etc.';
+
                 this.resetAll();
             });
         }

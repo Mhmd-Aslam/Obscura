@@ -171,8 +171,8 @@
         <!-- SEC 2: Decryption -->
         <section id="panel-decrypt" class="panel hidden" role="tabpanel" aria-labelledby="tab-decrypt">
             <header class="panel-header">
-                <h2>Message Decryption</h2>
-                <p>Decrypt a previously secured message or file.</p>
+                <h2 id="dec-header-title">Message Decryption</h2>
+                <p id="dec-header-desc">Decrypt a previously secured message or file.</p>
             </header>
 
             <!-- Sub Nav -->
@@ -274,7 +274,7 @@
                     </div>
 
                     <div class="form-group" id="stego-lock-group">
-                        <label for="stego-pass">Lock Password (Required)</label>
+                        <label for="stego-pass">Lock Password</label>
                         <input type="password" id="stego-pass" name="password" required
                             placeholder="Password to lock the hidden message...">
                         <!-- Strength Meter -->
@@ -312,7 +312,7 @@
                     </div>
 
                     <div class="form-group" id="stego-unlock-group">
-                        <label for="stego-unlock-pass">Unlock Password (Required)</label>
+                        <label for="stego-unlock-pass">Unlock Password</label>
                         <input type="password" id="stego-unlock-pass" name="password" required
                             placeholder="Password to unlock...">
                     </div>
@@ -516,8 +516,8 @@
         <!-- SEC 4: Hashing -->
         <section id="panel-hash" class="panel hidden" role="tabpanel" aria-labelledby="tab-hash">
             <header class="panel-header">
-                <h2>File & Text Hashing</h2>
-                <p>Generate fingerprints for your data using SHA-256, SHA-512, etc.</p>
+                <h2 id="hash-header-title">File & Text Hashing</h2>
+                <p id="hash-header-desc">Generate fingerprints for your data using SHA-256, SHA-512, etc.</p>
             </header>
 
             <!-- Sub Nav -->
