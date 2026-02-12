@@ -2,22 +2,44 @@
     "name": "Obscura Security Suite",
     "short_name": "Obscura",
     "description": "Browser-based encryption, steganography, and security tools.",
+    "id": "/",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#050505",
     "theme_color": "#10b981",
     "icons": [
         {
-            "src": "/logo.png",
+            "src": "/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/logo.png",
+            "src": "/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/logo.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Obscura Security Suite - Desktop"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "label": "Obscura Security Suite - Mobile"
         }
     ]
 }
