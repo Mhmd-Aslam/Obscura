@@ -542,32 +542,17 @@ export class UIManager {
     }
 
     injectSecurityControls() {
-        // 1. Reset Button in Header (formerly Panic)
+        // 1. Reset Button in Header
         const headerContainer = document.querySelector('header .container');
         if (headerContainer) {
             const resetBtn = document.createElement('button');
             resetBtn.id = 'btn-reset';
+            resetBtn.className = 'btn-reset'; // Class for CSS styling
             resetBtn.textContent = 'RESET';
             resetBtn.title = 'Reset Application';
-            // Use warning color or keep danger? Reset is usually destructive. Let's keep it distinct but maybe not 'danger' red. 
-            // Actually, for a "Reset", a neutral or warning color is fine. The user liked the "Panic" style, just wanted name change.
-            // Let's stick to the existing style but update the ID.
-            resetBtn.style.cssText = 'float: right; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 5px 12px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;';
-
-            // Add hover effect via JS since inline styles are tricky for pseudo-classes, or better yet, give it a class and style in CSS?
-            // The previous implementation used inline styles. I will update it to be cleaner if possible, but for now changing text is priority.
-            // Let's make it look slightly less alarming than the red PANIC button, but still clearer.
-
-            resetBtn.style.cssText = 'float: right; background: var(--warning); color: #000; border: none; padding: 5px 12px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 0.8rem;';
 
             headerContainer.appendChild(resetBtn);
             this.dom.btnReset = resetBtn;
-        }
-
-        // 2. Self Destruct Options in Encrypt Form
-        const encryptActions = this.dom.formEncrypt.querySelector('.form-actions');
-        if (encryptActions) {
-            // ... (existing code logic is fine, we are just appending new methods after injectSecurityControls)
         }
     }
 
@@ -813,10 +798,4 @@ export class UIManager {
         }
     }
 
-    getSelfDestructTime() {
-        if (this.dom.inputDestructCheck && this.dom.inputDestructCheck.checked) {
-            return parseInt(this.dom.inputDestructTime.value, 10);
-        }
-        return 0;
-    }
 }

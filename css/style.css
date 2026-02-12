@@ -153,6 +153,30 @@ header .container {
     position: relative;
 }
 
+.btn-reset {
+    float: right;
+    background: var(--warning);
+    color: #000;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-reset:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-reset:active {
+    transform: translateY(0);
+}
+
 
 /* --- Base --- */
 html {
