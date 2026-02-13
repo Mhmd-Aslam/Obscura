@@ -41,6 +41,10 @@ export class StegoEngine {
                     break;
                 }
             }
+            // Critical fix: Ensure alpha is 255 (opaque) so RGB values aren't discarded
+            // by the browser's image optimizer for transparent pixels.
+            data[i + 3] = 255;
+
             if (payloadIndex >= fullPayload.length) break;
         }
 
