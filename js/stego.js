@@ -66,8 +66,13 @@ export class StegoEngine {
                     if (lengthHeader.length === 32) {
                         messageLength = parseInt(lengthHeader, 2);
                         isReadingHeader = false;
-                        if (messageLength <= 0 || messageLength > (data.length * 3)) {
-                            // Invalid header detection
+
+                        // Valid bit check: (Total Bytes / 4 bytes per pixel) * 3 bits per pixel
+                        const availableBits = (data.length / 4) * 3;
+
+                        if (messageLength <= 0 || messageLength > availableBits) {
+                            console.warn('Stego decode: Invalid message length header detected:', messageLength);
+                            return null;
                         }
                     }
                 } else {
@@ -86,10 +91,35 @@ export class StegoEngine {
             if (!isReadingHeader && binaryString.length >= messageLength) break;
         }
 
-        return '';
+        return null;
     }
 
-    fileToImageData(file) {
+    async fileToImageData(file) {
+        // Method 1: createImageBitmap (Modern, prevents color mutation)
+        if (window.createImageBitmap) {
+            try {
+                const imgBitmap = await createImageBitmap(file, {
+                    colorSpaceConversion: 'none',
+                    resizeQuality: 'pixelated'
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = imgBitmap.width;
+                canvas.height = imgBitmap.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(imgBitmap, 0, 0);
+
+                // Cleanup
+                imgBitmap.close();
+
+                return ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            } catch (err) {
+                console.warn('createImageBitmap failed, falling back to standard Image:', err);
+            }
+        }
+
+        // Method 2: Standard Image (Fallback)
         return new Promise((resolve, reject) => {
             const img = new Image();
             const url = URL.createObjectURL(file);
@@ -98,7 +128,7 @@ export class StegoEngine {
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(img, 0, 0);
                 URL.revokeObjectURL(url);
                 resolve(ctx.getImageData(0, 0, canvas.width, canvas.height));
