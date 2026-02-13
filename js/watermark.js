@@ -142,6 +142,8 @@ export class WatermarkEngine {
                 data[i + j] = (data[i + j] & 0xFE) | bit;
                 bitIndex++;
             }
+            // Critical fix: Force alpha to 255 to prevent data loss in transparent pixels
+            data[i + 3] = 255;
         }
 
         return this.imageDataToBlobUrl(imageData);
@@ -411,7 +413,32 @@ export class WatermarkEngine {
         }
     }
 
-    fileToImageData(file) {
+    async fileToImageData(file) {
+        // Method 1: createImageBitmap (Modern, prevents color mutation)
+        if (window.createImageBitmap) {
+            try {
+                const imgBitmap = await createImageBitmap(file, {
+                    colorSpaceConversion: 'none',
+                    resizeQuality: 'pixelated'
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = imgBitmap.width;
+                canvas.height = imgBitmap.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(imgBitmap, 0, 0);
+
+                // Cleanup
+                imgBitmap.close();
+
+                return ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            } catch (err) {
+                console.warn('createImageBitmap failed, falling back to standard Image:', err);
+            }
+        }
+
+        // Method 2: Standard Image (Fallback)
         return new Promise((resolve, reject) => {
             const img = new Image();
             const url = URL.createObjectURL(file);
@@ -420,7 +447,7 @@ export class WatermarkEngine {
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(img, 0, 0);
                 URL.revokeObjectURL(url);
                 resolve(ctx.getImageData(0, 0, canvas.width, canvas.height));
