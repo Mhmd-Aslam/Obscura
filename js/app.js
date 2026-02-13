@@ -21,17 +21,53 @@ class App {
     init() {
         this.ui.dom.formEncrypt.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            this.ui.setButtonLoading(submitBtn, true);
 
-            const isFileMode = this.ui.dom.btnFileMode && this.ui.dom.btnFileMode.classList.contains('active');
             const pass = this.ui.dom.inputEncPass.value;
 
-            if (!pass) return;
+            if (!pass) {
+                this.ui.setButtonLoading(submitBtn, false);
+                return;
+            }
 
             try {
-                if (isFileMode) {
-                    const file = this.ui.dom.inputEncFile.files[0];
-                    if (!file) throw new Error("Please select a file to encrypt");
+                // Text Mode
+                const msg = this.ui.dom.inputEncMsg.value;
+                if (!msg) {
+                    this.ui.setButtonLoading(submitBtn, false);
+                    return;
+                }
 
+                const encrypted = await this.crypto.encrypt(msg, pass);
+                this.ui.showEncryptResult(encrypted);
+
+                this.history.add(encrypted);
+                this.ui.renderHistory(this.history.getAll());
+                this.ui.dom.formEncrypt.reset();
+            } catch (err) {
+                console.error(err);
+                this.ui.showError('encrypt', err.message);
+            } finally {
+                this.ui.setButtonLoading(submitBtn, false);
+            }
+        });
+
+        if (this.ui.dom.formEncryptFile) {
+            this.ui.dom.formEncryptFile.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                this.ui.setButtonLoading(submitBtn, true);
+
+                const file = this.ui.dom.inputEncFile.files[0];
+                const pass = this.ui.dom.inputEncFilePass.value;
+
+                if (!file || !pass) {
+                    this.ui.setButtonLoading(submitBtn, false);
+                    return;
+                }
+
+                try {
                     const fileBuffer = await file.arrayBuffer();
                     const metadata = {
                         filename: file.name,
@@ -44,30 +80,43 @@ class App {
                     const downloadName = file.name.replace(/\.[^/.]+$/, '') + '.obs';
                     this.downloadFile(encryptedBlob, downloadName);
 
-                    this.ui.showEncryptResult(`✅ File encrypted! Download started: ${downloadName}`);
-                } else {
-                    const msg = this.ui.dom.inputEncMsg.value;
-                    if (!msg) return;
+                    this.ui.dom.outputEncFile.textContent = `✅ File encrypted! Download started: ${downloadName}`;
+                    this.ui.dom.outputEncFile.classList.remove('error-text');
+                    this.ui.dom.areaEncFileOutput.classList.remove('hidden');
+                    this.ui.dom.areaEncFileOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-                    const encrypted = await this.crypto.encrypt(msg, pass);
-                    this.ui.showEncryptResult(encrypted);
+                    // Reset UI
+                    this.ui.dom.formEncryptFile.reset();
+                    if (this.ui.dom.inputEncFile) {
+                        const dropZone = this.ui.dom.inputEncFile.closest('.drop-zone');
+                        if (dropZone) this.ui.updateDropZoneUI(dropZone, null);
+                    }
+                    if (this.ui.dom.filePreview) {
+                        this.ui.dom.filePreview.classList.add('hidden');
+                        this.ui.dom.filePreview.innerHTML = '';
+                    }
 
-                    this.history.add(encrypted);
-                    this.ui.renderHistory(this.history.getAll());
-                    this.ui.dom.formEncrypt.reset();
+                } catch (err) {
+                    console.error(err);
+                    this.ui.showError('encrypt', err.message);
+                } finally {
+                    this.ui.setButtonLoading(submitBtn, false);
                 }
-            } catch (err) {
-                console.error(err);
-                this.ui.showError('encrypt', err.message);
-            }
-        });
+            });
+        }
 
         this.ui.dom.formDecrypt.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            this.ui.setButtonLoading(submitBtn, true);
+
             const cipher = this.ui.dom.inputDecData.value;
             const pass = this.ui.dom.inputDecPass.value;
 
-            if (!cipher || !pass) return;
+            if (!cipher || !pass) {
+                this.ui.setButtonLoading(submitBtn, false);
+                return;
+            }
 
             try {
                 const result = await this.crypto.decrypt(cipher, pass);
@@ -82,16 +131,24 @@ class App {
             } catch (err) {
                 console.error(err);
                 this.ui.showError('decrypt', err.message);
+            } finally {
+                this.ui.setButtonLoading(submitBtn, false);
             }
         });
 
         if (this.ui.dom.formDecryptFile) {
             this.ui.dom.formDecryptFile.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                this.ui.setButtonLoading(submitBtn, true);
+
                 const file = this.ui.dom.inputDecFile.files[0];
                 const pass = this.ui.dom.inputDecFilePass.value;
 
-                if (!file || !pass) return;
+                if (!file || !pass) {
+                    this.ui.setButtonLoading(submitBtn, false);
+                    return;
+                }
 
                 try {
                     const result = await this.crypto.decryptFile(file, pass);
@@ -105,6 +162,8 @@ class App {
                 } catch (err) {
                     console.error(err);
                     this.ui.showError('decrypt', err.message);
+                } finally {
+                    this.ui.setButtonLoading(submitBtn, false);
                 }
             });
         }
@@ -128,12 +187,16 @@ class App {
         }
 
         this.ui.dom.btnStegoHide.addEventListener('click', async () => {
+            const submitBtn = this.ui.dom.btnStegoHide;
+            this.ui.setButtonLoading(submitBtn, true);
+
             const file = this.ui.dom.inputStegoImage.files[0];
             const msg = this.ui.dom.inputStegoMsg.value;
             const pass = this.ui.dom.inputStegoPass.value;
 
             if (!file || !msg) {
                 this.ui.showDialog('Please select an image and enter a message.', 'Input Missing');
+                this.ui.setButtonLoading(submitBtn, false);
                 return;
             }
 
@@ -143,15 +206,21 @@ class App {
             } catch (err) {
                 console.error(err);
                 this.ui.showError('stego-hide', err.message);
+            } finally {
+                this.ui.setButtonLoading(submitBtn, false);
             }
         });
 
         this.ui.dom.btnStegoReveal.addEventListener('click', async () => {
+            const submitBtn = this.ui.dom.btnStegoReveal;
+            this.ui.setButtonLoading(submitBtn, true);
+
             const file = this.ui.dom.inputStegoRevealImage.files[0];
             const pass = this.ui.dom.inputStegoUnlockPass.value;
 
             if (!file) {
                 this.ui.showDialog('Please select an image to decode.', 'Input Missing');
+                this.ui.setButtonLoading(submitBtn, false);
                 return;
             }
 
@@ -165,11 +234,16 @@ class App {
             } catch (err) {
                 console.error(err);
                 this.ui.showError('stego-reveal', 'Failed to decode. Incorrect password or invalid image?');
+            } finally {
+                this.ui.setButtonLoading(submitBtn, false);
             }
         });
 
         this.ui.dom.formHash.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            this.ui.setButtonLoading(submitBtn, true);
+
             const formData = new FormData(e.target);
             const text = formData.get('input');
             const file = formData.get('file');
@@ -180,6 +254,7 @@ class App {
 
             if (!inputForHash && (!file || file.size === 0)) {
                 this.ui.showDialog('Please enter text or select a file.', 'Input Missing');
+                this.ui.setButtonLoading(submitBtn, false);
                 return;
             }
 
@@ -195,18 +270,24 @@ class App {
             } catch (err) {
                 console.error(err);
                 this.ui.showError('hash', 'Hashing failed.');
+            } finally {
+                this.ui.setButtonLoading(submitBtn, false);
             }
         });
 
         if (this.ui.dom.formHashFile) {
             this.ui.dom.formHashFile.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                this.ui.setButtonLoading(submitBtn, true);
+
                 const formData = new FormData(e.target);
                 const file = formData.get('file');
                 const algo = formData.get('algo-file');
 
                 if (!file || file.size === 0) {
                     this.ui.showError('hash', 'Please select a file.');
+                    this.ui.setButtonLoading(submitBtn, false);
                     return;
                 }
 
@@ -220,6 +301,8 @@ class App {
                 } catch (err) {
                     console.error(err);
                     this.ui.showError('hash', 'File hashing failed.');
+                } finally {
+                    this.ui.setButtonLoading(submitBtn, false);
                 }
             });
         }

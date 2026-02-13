@@ -495,7 +495,12 @@ export class UIManager {
      */
     resetAll() {
         // Reset all forms
-        document.querySelectorAll('form').forEach(form => form.reset());
+        document.querySelectorAll('form').forEach(form => {
+            form.reset();
+            // Clear Drop Zones UI
+            const dropZones = form.querySelectorAll('.drop-zone');
+            dropZones.forEach(dz => this.updateDropZoneUI(dz, null));
+        });
 
         // Hide all output/result areas
         document.querySelectorAll('.output-area, .result-area, .output-area-stego, .watermark-result-area, #analyze-results').forEach(area => {
@@ -691,6 +696,27 @@ export class UIManager {
 
         this.dom.analyzeResults.classList.remove('hidden');
         this.dom.analyzeResults.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    setButtonLoading(btn, isLoading, loadingText = '⌛ Processing...') {
+        if (!btn) return;
+
+        if (isLoading) {
+            // Save original text if not already saved
+            if (!btn.dataset.originalText) {
+                btn.dataset.originalText = btn.innerText;
+            }
+            btn.innerText = loadingText;
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
+        } else {
+            // Restore
+            if (btn.dataset.originalText) {
+                btn.innerText = btn.dataset.originalText;
+            }
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
+        }
     }
 
     showError(section, msg) {

@@ -577,6 +577,11 @@ button {
     min-height: 48px;
 }
 
+.btn-loading {
+    opacity: 0.7;
+    cursor: wait !important;
+}
+
 .btn-primary {
     background: var(--brand-gradient);
     color: white;
