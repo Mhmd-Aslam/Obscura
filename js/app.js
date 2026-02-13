@@ -468,15 +468,23 @@ class App {
 
         const btnWatermarkSave = document.getElementById('btn-watermark-save');
         if (btnWatermarkSave) {
-            btnWatermarkSave.addEventListener('click', (e) => {
+            btnWatermarkSave.addEventListener('click', async (e) => {
                 const url = e.target.dataset.url;
                 const type = e.target.dataset.type;
 
                 if (url) {
+                    // Visual processing state
+                    this.ui.setButtonLoading(btnWatermarkSave, true, '⬇️ Saving...');
+                    await new Promise(resolve => setTimeout(resolve, 800)); // 800ms delay for UX
+
                     const link = document.createElement('a');
                     link.download = type === 'pdf' ? 'watermarked_document.pdf' : 'watermarked_image.png';
                     link.href = url;
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
+
+                    this.ui.setButtonLoading(btnWatermarkSave, false);
                 }
             });
         }

@@ -679,14 +679,22 @@ export class UIManager {
         // It is in the range. I'll include it.
         const saveBtn = document.getElementById('btn-stego-save');
         if (saveBtn) {
-            saveBtn.addEventListener('click', () => {
+            saveBtn.addEventListener('click', async () => {
                 const src = this.dom.imgStegoOutput.src;
                 if (!src || src === '') return;
+
+                // Visual processing state
+                this.setButtonLoading(saveBtn, true, '⬇️ Saving...');
+                await new Promise(resolve => setTimeout(resolve, 800)); // 800ms delay for UX
 
                 const link = document.createElement('a');
                 link.download = `obscura_stego_${Date.now()}.png`;
                 link.href = src;
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
+
+                this.setButtonLoading(saveBtn, false);
             });
         }
     }
