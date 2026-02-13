@@ -1,13 +1,12 @@
 # Obscura 🔒
 > **Privacy-First Security Suite - Client-Side Cryptography**
 
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Status: Production](https://img.shields.io/badge/Status-Production-blue.svg)
-![PWA Ready](https://img.shields.io/badge/PWA-Ready-brightgreen.svg)
 
-**Obscura** is a zero-knowledge, browser-based security application that provides military-grade encryption, steganography, watermarking, and data analysis tools—all without sending any data to a server.
+**Obscura** is a zero-knowledge, **Progressive Web App (PWA)** security suite that provides military-grade encryption, steganography, watermarking, and data analysis tools—all without sending any data to a server.
 
-🌐 **Live Demo**: [https://obscura-sec.vercel.app](https://obscura-sec.vercel.app)
+🌐 **Try Obscura Online**: [https://obscura-sec.vercel.app](https://obscura-sec.vercel.app)
+
+![Obscura Interface](public/ss1.png)
 
 ---
 
@@ -23,6 +22,7 @@ Obscura operates entirely on the client side. No data, keys, or passwords are ev
 -   **Key Derivation**: PBKDF2-SHA256 with 100,000 iterations
 -   **Security**: CSPRNG-generated salts and initialization vectors
 -   **File Support**: Encrypt/decrypt both text messages and files
+-   **Drag & Drop**: Intuitive file handling for all operations
 
 ### 2. **Steganography**
 -   **LSB Encoding**: Hide secret messages inside PNG/JPEG images

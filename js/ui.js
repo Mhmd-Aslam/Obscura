@@ -521,10 +521,18 @@ export class UIManager {
         if (watermarkImg) watermarkImg.classList.add('hidden');
 
         // Clear strength meters
-        document.querySelectorAll('.strength-meter').forEach(meter => {
+        this.resetStrengthMeters();
+    }
+
+    resetStrengthMeters(context = document) {
+        context.querySelectorAll('.strength-meter').forEach(meter => {
             meter.classList.add('hidden');
             const bar = meter.querySelector('.strength-bar');
             if (bar) bar.style.width = '0%';
+        });
+        context.querySelectorAll('.strength-label').forEach(label => {
+            label.textContent = '';
+            label.className = 'strength-label';
         });
     }
 
@@ -613,6 +621,7 @@ export class UIManager {
         this.dom.areaEncOutput.classList.remove('hidden');
         this.dom.areaEncOutput.scrollIntoView({ behavior: 'smooth' });
         this.dom.formEncrypt.reset();
+        this.resetStrengthMeters(this.dom.formEncrypt);
     }
 
     showDecryptResult(text) {

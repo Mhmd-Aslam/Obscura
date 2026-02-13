@@ -87,6 +87,7 @@ class App {
 
                     // Reset UI
                     this.ui.dom.formEncryptFile.reset();
+                    this.ui.resetStrengthMeters(this.ui.dom.formEncryptFile);
                     if (this.ui.dom.inputEncFile) {
                         const dropZone = this.ui.dom.inputEncFile.closest('.drop-zone');
                         if (dropZone) this.ui.updateDropZoneUI(dropZone, null);
@@ -203,6 +204,9 @@ class App {
             try {
                 const resultUrl = await this.stego.encode(file, msg, pass);
                 this.ui.showStegoResult(resultUrl);
+                // Reset password input and meter
+                this.ui.dom.inputStegoPass.value = '';
+                this.ui.resetStrengthMeters();
             } catch (err) {
                 console.error(err);
                 this.ui.showError('stego-hide', err.message);
@@ -456,6 +460,8 @@ class App {
                         btnApply.disabled = false;
                         btnApply.innerText = originalBtnText;
                     }
+                    // Reset strength meters for watermark password
+                    this.ui.resetStrengthMeters();
                 }
             });
         }
@@ -584,8 +590,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker registration failed', err));
+                .then(reg => { /* Service Worker registered */ })
+                .catch(err => console.error('Service Worker registration failed', err));
         });
     }
 });
