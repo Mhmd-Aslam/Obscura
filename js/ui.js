@@ -89,6 +89,12 @@ export class UIManager {
 
             areaStegoResult: document.getElementById('stego-result-area'),
             imgStegoOutput: document.getElementById('stego-output'),
+            stegoHeaderTitle: document.getElementById('stego-header-title'),
+            stegoHeaderDesc: document.getElementById('stego-header-desc'),
+
+            // Watermark Section
+            watermarkHeaderTitle: document.getElementById('watermark-header-title'),
+            watermarkHeaderDesc: document.getElementById('watermark-header-desc'),
 
             // Analyzer Section
             formAnalyze: document.getElementById('form-analyze'),
@@ -445,6 +451,15 @@ export class UIManager {
                 const targetId = btn.getAttribute('aria-controls');
                 document.getElementById(targetId).classList.remove('hidden');
 
+                // Update Header Text
+                if (btn.id === 'subtab-stego-hide') {
+                    if (this.dom.stegoHeaderTitle) this.dom.stegoHeaderTitle.textContent = 'Image Steganography';
+                    if (this.dom.stegoHeaderDesc) this.dom.stegoHeaderDesc.textContent = 'Hide secret messages inside image files.';
+                } else if (btn.id === 'subtab-stego-reveal') {
+                    if (this.dom.stegoHeaderTitle) this.dom.stegoHeaderTitle.textContent = 'Data Extraction';
+                    if (this.dom.stegoHeaderDesc) this.dom.stegoHeaderDesc.textContent = 'Reveal and unlock hidden information from steganographic images.';
+                }
+
                 // Auto-reset when changing stego sub-tabs
                 this.resetAll();
             });
@@ -470,6 +485,10 @@ export class UIManager {
             addView.classList.remove('hidden');
             extractView.classList.add('hidden');
 
+            // Update Header Text
+            if (this.dom.watermarkHeaderTitle) this.dom.watermarkHeaderTitle.textContent = 'Watermarking';
+            if (this.dom.watermarkHeaderDesc) this.dom.watermarkHeaderDesc.textContent = 'Add visible or invisible watermarks to protect your images and documents.';
+
             // Auto-reset when changing watermark sub-tabs
             this.resetAll();
         });
@@ -484,6 +503,10 @@ export class UIManager {
             // Show/hide views
             extractView.classList.remove('hidden');
             addView.classList.add('hidden');
+
+            // Update Header Text
+            if (this.dom.watermarkHeaderTitle) this.dom.watermarkHeaderTitle.textContent = 'Watermark Extraction';
+            if (this.dom.watermarkHeaderDesc) this.dom.watermarkHeaderDesc.textContent = 'Detect and recover hidden signatures from watermarked images.';
 
             // Auto-reset when changing watermark sub-tabs
             this.resetAll();

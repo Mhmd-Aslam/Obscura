@@ -11,8 +11,9 @@
     <!-- External Resources -->
     <link rel="stylesheet" href="css/utility.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png?v=2">
+    <link rel="apple-touch-icon" href="/logo.png?v=2">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#050505">
 
@@ -289,8 +290,8 @@
 
         <section id="panel-stego" class="panel hidden" role="tabpanel" aria-labelledby="tab-stego">
             <header class="panel-header">
-                <h2>Image Steganography</h2>
-                <p>Hide secret messages inside image files.</p>
+                <h2 id="stego-header-title">Image Steganography</h2>
+                <p id="stego-header-desc">Hide secret messages inside image files.</p>
             </header>
 
             <!-- Sub Nav -->
@@ -401,8 +402,9 @@
 
         <section id="panel-watermark" class="panel hidden" role="tabpanel" aria-labelledby="tab-watermark">
             <header class="panel-header">
-                <h2>Watermarking</h2>
-                <p>Add visible or invisible watermarks to protect your images and documents.</p>
+                <h2 id="watermark-header-title">Watermarking</h2>
+                <p id="watermark-header-desc">Add visible or invisible watermarks to protect your images and documents.
+                </p>
             </header>
 
             <!-- Sub Nav -->
